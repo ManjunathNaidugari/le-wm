@@ -1,44 +1,66 @@
-```
+```yaml
+# Colab-specific files
+*.ipynb_checkpoints
+.checkpoint
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+*.env.*
+
 # Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# Datasets and trajectories (binary files)
-data/habitat_trajectories/*.pt
-
-# Logs
-*.log
-
-# Environment
-.env
-.env.local
-*.env.*
-
-# Dependencies
-.venv/
+.Python
+env/
 venv/
-node_modules/
+.venv/
+.ENV
+.python-version
 
 # Build artifacts
-dist/
 build/
-target/
-
-# Coverage reports
-coverage/
-htmlcov/
-.coverage
+dist/
+*.egg-info/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*.tmp
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+.hypothesis/
+
+# Distribution
+*.tar.gz
+*.whl
+*.zip
+
+# Habitat-specific
+*.log
+*.tmp
 ```
