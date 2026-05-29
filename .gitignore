@@ -1,66 +1,36 @@
-```yaml
-# Colab-specific files
-*.ipynb_checkpoints
-.checkpoint
+```
+# Compiled Python files
+*.pyc
+__pycache__/
 
-# Jupyter notebooks
-.ipynb_checkpoints/
-
-# Temporary files
-*.tmp
-*.temp
-
-# Logs
+# Logs and temp files
 *.log
+*.tmp
 
-# Environment files
+# Environment
 .env
 .env.local
 *.env.*
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-.ENV
-.python-version
-
-# Build artifacts
-build/
-dist/
-*.egg-info/
-
-# IDE
+# Editors
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# OS
-.DS_Store
-Thumbs.db
+# Dependencies
+.venv/
+venv/
+node_modules/
 
-# Coverage
-.coverage
+# Build artifacts
+dist/
+build/
+target/
+
+# Coverage reports
 coverage/
 htmlcov/
+.coverage
 
-# Testing
-.pytest_cache/
-.mypy_cache/
-.hypothesis/
-
-# Distribution
-*.tar.gz
-*.whl
-*.zip
-
-# Habitat-specific
+# Original rules preserved
 *.log
-*.tmp
 ```

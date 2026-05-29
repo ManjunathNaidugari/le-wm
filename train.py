@@ -10,7 +10,7 @@ import torch
 from lightning.pytorch.loggers import WandbLogger
 from omegaconf import OmegaConf, open_dict
 
-from module import SIGReg
+from module import SIGReg, AnisotropicSIGReg, ManifoldAwareRegularizer
 from utils import get_column_normalizer, get_img_preprocessor, SaveCkptCallback
 
 
@@ -20,6 +20,7 @@ def lejepa_forward(self, batch, stage, cfg):
     ctx_len = cfg.wm.history_size
     n_preds = cfg.wm.num_preds
     lambd = cfg.loss.sigreg.weight
+    use_anisotropic = cfg.loss.sigreg.get('use_anisotropic', False)
 
     # Replace NaN values with 0 (occurs at sequence boundaries)
     batch["action"] = torch.nan_to_num(batch["action"], 0.0)
@@ -37,7 +38,15 @@ def lejepa_forward(self, batch, stage, cfg):
 
     # LeWM loss
     output["pred_loss"] = (pred_emb - tgt_emb).pow(2).mean()
-    output["sigreg_loss"]= self.sigreg(emb.transpose(0, 1))
+    
+    # Compute SIGReg loss (isotropic or anisotropic)
+    if use_anisotropic:
+        # Anisotropic SIGReg requires actions for manifold estimation
+        output["sigreg_loss"] = self.sigreg(emb.transpose(0, 1), actions=batch["action"])
+    else:
+        # Standard isotropic SIGReg
+        output["sigreg_loss"] = self.sigreg(emb.transpose(0, 1))
+    
     output["loss"] = output["pred_loss"] + lambd * output["sigreg_loss"]  
 
     losses_dict = {f"{stage}/{k}": v.detach() for k, v in output.items() if "loss" in k}
@@ -94,9 +103,17 @@ def run(cfg):
     }
 
     data_module = spt.data.DataModule(train=train, val=val)
+    
+    # Initialize regularizer (isotropic or anisotropic based on config)
+    use_anisotropic = cfg.loss.sigreg.get('use_anisotropic', False)
+    if use_anisotropic:
+        sigreg_module = AnisotropicSIGReg(**cfg.loss.sigreg.kwargs)
+    else:
+        sigreg_module = SIGReg(**cfg.loss.sigreg.kwargs)
+    
     world_model = spt.Module(
         model = world_model,
-        sigreg = SIGReg(**cfg.loss.sigreg.kwargs),
+        sigreg = sigreg_module,
         forward=partial(lejepa_forward, cfg=cfg),
         optim=optimizers,
     )

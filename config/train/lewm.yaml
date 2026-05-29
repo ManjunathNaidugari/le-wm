@@ -40,6 +40,12 @@ wm:
 loss:
   sigreg:
     weight: 0.09
+    use_anisotropic: false  # Set to true for Manifold-Aware Regularizer (Micro-JEPA)
     kwargs:
       knots: 17
       num_proj: 1024
+      # Anisotropic-specific parameters (only used when use_anisotropic=true)
+      manifold_dim: 'adaptive'  # Options: 'adaptive', 'fixed_1d', 'fixed_2d', 'fixed_3d'
+      min_variance: 0.01
+      max_variance: 10.0
+      action_history_window: 5
