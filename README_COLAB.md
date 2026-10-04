@@ -1,6 +1,6 @@
 # Habitat milestone status
 
-Use the [Habitat smoke-test instructions](README.md#habitat-indoor-navigation-smoke-test)
+Use the [Habitat smoke-test instructions](README.md#environment-and-basic-commands)
 and `environment-habitat.yml`. First verify a real scene rollout and its saved MP4.
 The historical Colab training notebook and `configs/habitat_colab.yaml` are
 unvalidated drafts and are not supported by this milestone. Do not use their old

@@ -72,3 +72,23 @@ outputs/
 episode_*.pt
 episode_*.pt.tmp
 *.mp4
+
+# Generated research artifacts (source under data/ and datasets/ stays tracked)
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.glb
+*.navmesh
+checkpoints/
+representations/
+features/
+.cache/
+caches/
+wandb/
+results/
+runpod_outputs/
+videos/
+/data/gibson*/
+/data/scene_datasets/
+/data/pointnav/
