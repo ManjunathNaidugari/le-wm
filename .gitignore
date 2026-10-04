@@ -66,3 +66,9 @@ htmlcov/
 # Real Habitat assets and smoke outputs
 data/habitat_data/
 outputs/
+
+# Expert datasets and inspection videos, including custom output directories
+/data/habitat_expert*/
+episode_*.pt
+episode_*.pt.tmp
+*.mp4

@@ -354,5 +354,81 @@ working graphics driver and compatible headless Habitat build.
 
 ---
 
+## Collect a small Habitat expert dataset
+
+The single-episode smoke test was verified by the project owner on Linux with
+Habitat-Sim 0.3.3, RTX 3090/EGL and the real castle scene: 31 actions, 32 RGB
+frames, 6.251m travelled, 6.290m initial geodesic distance, and 0.055m final
+distance. All eight smoke tests passed there. The dataset extension needs its own
+multi-episode validation on that environment.
+
+From the repository root in the existing RunPod environment:
+
+```bash
+conda activate lewm-habitat-smoke
+python -m unittest discover -s tests -v
+python scripts/collect_habitat_dataset.py --num-episodes 100 --output-dir data/habitat_expert --seed 42
+python scripts/inspect_habitat_dataset.py --dataset-dir data/habitat_expert
+python scripts/inspect_habitat_dataset.py --dataset-dir data/habitat_expert --episode 0
+```
+
+No additional dependencies are needed. Collection accepts `--scene`,
+`--max-steps` (500 by default), and `--resolution` (224 by default). It reuses the
+verified collector, simulator and navmesh. Before every reset, simulator and
+pathfinder are seeded with `(global_seed + episode_id) % 2**31`; the same seed
+also controls the initial orientation. Episode zero therefore uses seed 42.
+Reproducibility assumes the same scene assets, simulator build, settings and
+hardware/software environment; it is not a promise of identical bytes across
+platforms. Exact repeated start/goal/heading triples cause a clear error instead
+of silently adding duplicate episodes.
+
+Each attempted rollout produces `episode_000000.pt`, `episode_000001.pt`, etc.,
+using the smoke test's T+1/T tensor schema. Failed expert rollouts are retained.
+`manifest.json` records scene, episode ID/seed, success, termination, steps,
+initial/final geodesic distances, travelled distance, collision count, and relative
+trajectory path. An unreachable final distance is JSON `null` (the trajectory
+retains infinity). Each file is written via a temporary file and rename; the
+manifest is updated after each episode. `complete: false` identifies interrupted
+collections. Setup, sampling, validation and unexpected simulator errors stop
+collection; no dummy episode is generated. A crash between trajectory rename and
+manifest update can leave an unlisted file, which inspection flags explicitly.
+Automatic resume is not implemented. Choose a fresh output directory for each run;
+existing directories are refused. Exit 0 means collection finished, not that all
+episodes succeeded; exit 2 means a setup/collection error.
+
+Inspection validates every trajectory and cross-checks the manifest before
+printing totals, successes, failures, success rate, mean/median action count,
+mean initial geodesic distance and mean collision count (all episodes included).
+Validation checks action IDs, state/action lengths, tensor shapes/dtypes, finite
+geometry, STOP placement, metrics and non-empty successes. Entirely constant
+successful RGB sequences are rejected; this is a basic corruption check, not a
+substitute for watching rendered frames. `--episode 0` also writes all T+1 RGB
+frames to `data/habitat_expert/videos/episode_000000.mp4` (10 fps; override with
+`--fps`). Existing videos are not overwritten. Summary-only inspection needs no
+Habitat installation and exports no video.
+
+For downstream dataset access, successful episodes are selected by default:
+
+```python
+from datasets.habitat_dataset import HabitatTrajectoryDataset
+successful = HabitatTrajectoryDataset("data/habitat_expert", num_steps=4)
+all_rollouts = HabitatTrajectoryDataset("data/habitat_expert", num_steps=4, success_only=False)
+```
+
+Windows never cross episode boundaries. Episodes shorter than `num_steps` supply
+no windows; an all-failure directory gives an empty success-only dataset.
+The loader validates trajectories; use the inspection command to additionally
+validate manifest consistency. No training integration is added here.
+Generated episode tensors and MP4s are ignored by Git; keep custom dataset roots
+ignored too if storing manifests outside `data/habitat_expert*` or `outputs/`.
+At 224x224, uncompressed RGB alone is about 15 MB per 100-state episode, or 75 MB
+at the 500-action limit; reserve several GB for 100 episodes.
+
+On RunPod, first collect a small batch in a fresh directory and inspect several
+videos, then repeat the same seed/settings in a second directory. Compare action,
+pose and RGB tensors and confirm starts/goals/headings vary between episode IDs.
+Run the 100-episode command after that check; review failures and the success-only
+window count before using this dataset for any later milestone.
+
 ## Contact & Contributions
 Feel free to open [issues](https://github.com/lucas-maes/le-wm/issues)! For questions or collaborations, please contact `lucas.maes@mila.quebec`
