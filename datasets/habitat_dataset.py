@@ -5,7 +5,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 
 
-def validate_trajectory(traj):
+def validate_trajectory(traj, check_rgb_quality=True):
     if traj.get("schema_version") != 1:
         raise ValueError("Unsupported trajectory: recollect with scripts/smoke_habitat.py")
     required = {'actions', 'observations', 'positions', 'headings', 'relative_goals',
@@ -56,7 +56,7 @@ def validate_trajectory(traj):
         raise ValueError('Invalid goal radius')
     if m['success'] and m['final_distance'] > radius:
         raise ValueError('Success outside goal radius')
-    if m['success'] and rgb.min() == rgb.max():
+    if check_rgb_quality and m['success'] and rgb.min() == rgb.max():
         raise ValueError('Successful episode RGB is entirely constant')
 
 

@@ -18,12 +18,16 @@ def episode_seed(seed, episode_id):
 
 def manifest_entry(episode_id, episode, filepath):
     m, meta = episode['metrics'], episode['metadata']
-    return dict(episode_id=episode_id, scene=meta['scene'], seed=meta['seed'],
+    entry = dict(episode_id=episode_id, scene=meta['scene'], seed=meta['seed'],
                 success=m['success'], steps=m['steps'], termination=m['termination'],
                 initial_geodesic_distance=m['initial_geodesic_distance'],
                 final_distance=m['final_distance'] if math.isfinite(m['final_distance']) else None,
                 path_length=m['path_length'], collision_count=int(episode['collisions'].sum()),
                 trajectory=filepath)
+    if meta.get('source_dataset'):
+        entry.update(source_dataset=meta['source_dataset'],
+                     source_episode_id=meta['source_episode_id'], source_scene_id=meta['source_scene_id'])
+    return entry
 
 
 def summary(entries):
@@ -88,7 +92,7 @@ def collect_dataset(env, output_dir, scene, num_episodes=100, seed=42, max_steps
     return manifest
 
 
-def validate_dataset(dataset_dir):
+def validate_dataset(dataset_dir, check_rgb_quality=True):
     """Read every saved tensor and cross-check manifest metadata; never trust stale stats."""
     root = Path(dataset_dir)
     manifest = json.loads((root / 'manifest.json').read_text())
@@ -101,17 +105,19 @@ def validate_dataset(dataset_dir):
         if entry['episode_id'] != expected_id or entry['trajectory'] != filename:
             raise ValueError('Manifest episode IDs/filenames must be consecutive and unique')
         episode = torch.load(root / filename, map_location='cpu', weights_only=True)
-        validate_trajectory(episode)
+        validate_trajectory(episode, check_rgb_quality=check_rgb_quality)
         if episode['metadata']['seed'] != episode_seed(manifest['global_seed'], expected_id):
             raise ValueError(f'{filename}: seed mismatch')
         if episode['metadata']['episode_id'] != expected_id:
             raise ValueError(f'{filename}: episode ID mismatch')
         if entry != manifest_entry(expected_id, episode, filename):
             raise ValueError(f'{filename}: manifest does not match trajectory')
-        signature = tuple(episode['positions'][0].tolist() + episode['goal_position'].tolist()
+        signature = (episode['metadata']['scene'],) + tuple(episode['positions'][0].tolist() + episode['goal_position'].tolist()
                           + [episode['headings'][0].item()])
+        if episode['metadata'].get('source_dataset') == 'gibson_pointnav_v1':
+            signature = (episode['metadata']['source_scene_id'], episode['metadata']['source_episode_id'])
         if signature in seen:
-            raise ValueError(f'{filename}: duplicate sampled task')
+            raise ValueError(f'{filename}: duplicate sampled task or official episode')
         seen.add(signature)
         paths.add(filename)
     if paths != {p.name for p in root.glob('*.pt')}:
