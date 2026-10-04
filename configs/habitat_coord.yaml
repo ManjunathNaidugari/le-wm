@@ -1,3 +1,6 @@
+# LEGACY UNVALIDATED TRAINING DRAFT — not used by the Habitat smoke test.
+# Use scripts/smoke_habitat.py and environment-habitat.yml; discrete data is not
+# compatible with the previous continuous-action training assumptions.
 defaults:
   - _self_
   - launcher: local

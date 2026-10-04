@@ -1,3 +1,6 @@
+# LEGACY UNVALIDATED TRAINING DRAFT — not used by the Habitat smoke test.
+# Use scripts/smoke_habitat.py and environment-habitat.yml; discrete data is not
+# compatible with the previous continuous-action training assumptions.
 # configs/habitat_colab.yaml
 # Optimized for Google Colab (T4 GPU, 12GB VRAM)
 # This configuration is designed for efficient training on Colab's free tier

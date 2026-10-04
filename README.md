@@ -270,299 +270,87 @@ PY
 
 After conversion, load via `swm.policy.AutoCostModel('pusht/lewm')` as usual.
 
-## LeWM Indoor Navigation with Habitat
+## Habitat indoor-navigation smoke test
 
-This section provides step-by-step instructions for training LeWorldModel on **Habitat indoor navigation tasks**. The implementation uses continuous velocity commands (linear, angular) and supports both coordinate-based and image-based goal specifications.
+This milestone runs one real RGB episode with **Habitat-Sim 0.3.3 only**.
+There is no Habitat-Lab dependency, PointNav episode dataset, training, or MPC.
+The former Habitat collector was a stub: it mixed continuous labels with discrete
+execution, paired post-action images with pre-action poses, indexed a quaternion
+incorrectly, steered directly through obstacles, and silently generated random data.
+Those paths have been replaced. Old trajectories must be recollected.
 
-### Overview
+### Setup and run
 
-The Habitat integration consists of three components:
-1. **Data Collection** (`data/habitat_collector.py`) - Collects offline trajectories using shortest-path heuristic with Gaussian noise
-2. **Dataset Loading** (`datasets/habitat_dataset.py`) - PyTorch dataset for loading trajectory files
-3. **Environment Wrapper** (`envs/habitat_wrapper.py`) - Gym wrapper for evaluation with LeWM-compatible observations
-
-### Step 1: Install Habitat Dependencies
-
-In addition to the base LeWM dependencies, install Habitat:
-
-```bash
-# Activate your virtual environment first
-source .venv/bin/activate
-
-# Install habitat-lab and habitat-sim
-# Note: habitat-sim requires compilation and may take 10-20 minutes
-pip install habitat-lab habitat-sim
-
-# Alternative: Use conda for easier habitat-sim installation
-conda install -c conda-forge habitat-sim habitat-lab
-```
-
-**Troubleshooting:** If habitat-sim compilation fails, try:
-```bash
-# Ensure you have build tools installed
-sudo apt-get update && sudo apt-get install -y build-essential cmake libglm-dev
-
-# Or use pre-built binaries (if available for your system)
-pip install habitat-sim --no-build-isolation
-```
-
-### Step 2: Prepare Habitat Scene Data
-
-Download Habitat scene datasets (e.g., HM3D, Gibson, MatterPort3D):
+Use Linux x86_64 with an EGL-capable graphics driver (for example an NVIDIA GPU
+with its driver installed), Conda, and network access for packages and test assets.
+The headless environment below is not a macOS environment. The smoke test does
+not need the upstream LeWM training dependencies or CUDA-enabled PyTorch.
 
 ```bash
-# Example: Download HM3D train data
-mkdir -p data/habitat_data
-cd data/habitat_data
-
-# Download from Habitat website or use existing scenes
-# For testing, you can use the builtin tiny scenes
+conda env create -f environment-habitat.yml
+conda activate lewm-habitat-smoke
+python -m habitat_sim.utils.datasets_download --uids habitat_test_scenes --data-path data/habitat_data
+python scripts/smoke_habitat.py
 ```
 
-Create a Habitat configuration file (e.g., `configs/habitat_pointnav.yaml`):
+Run these commands from this repository's root. The freely downloadable
+`skokloster-castle.glb` indoor test scene is the default; no HM3D credentials are
+needed. Package installation and scene download are explicit, never automatic.
+See the [official 0.3.3 installation and test-scene instructions](https://github.com/facebookresearch/habitat-sim/blob/v0.3.3/README.md).
 
-```yaml
-ENVIRONMENT:
-  MAX_EPISODE_STEPS: 500
-SIMULATOR:
-  AGENT_0:
-    SENSORS: ['RGB_SENSOR']
-    ACTION_SPACE_CONFIG: "v0"
-  HABITAT_SIM_V0:
-    GPU_DEVICE_ID: 0
-    ALLOW_SLIDING: True
-  TURN_ANGLE: 15
-  FORWARD_STEP_SIZE: 0.25
-TASK:
-  TYPE: Nav-v0
-  POSSIBLE_ACTIONS: ["MOVE_FORWARD", "TURN_LEFT", "TURN_RIGHT"]
-  SENSORS: ['GPS', 'COMPASS']
-  GOAL_SENSORS: ['POINTGOAL_WITH_GPS_COMPASS_SENSOR']
-DATASET:
-  TYPE: PointNav-v1
-  SPLIT: train
-  DATA_PATH: "data/habitat_data/{scene}/{scene}_{split}.json.gz"
-  SCENES_DIR: "data/habitat_data/"
+The script creates an RGB camera, rebuilds a navmesh for a 1.5m tall / 0.1m radius
+agent, samples a connected start and goal 2–10m apart, and uses Habitat's
+`ShortestPath` and `GreedyGeodesicFollower` to follow obstacle-aware geodesics.
+Sampling does not guarantee the selected route contains a bend. Forward motion
+is 0.25m; turns are 15 degrees. Success requires STOP within 0.2m geodesic distance.
+STOP is a terminal no-op with a fresh sensor observation. No frame skipping occurs.
+
+```text
+outputs/videos/episode_0001.mp4
+outputs/trajectories/episode_0001.pt
 ```
 
-### Step 3: Collect Training Data
+The console reports success/failure, executed action count (including STOP),
+travelled path length, final geodesic distance, and termination reason. Exit codes:
+0 success, 1 failed rollout (including step limit or follower failure), 2 setup or
+output error. Failed rollouts are saved too. Existing artifacts are not overwritten;
+use `--output-dir outputs/another_run`. Options also include `--scene`, `--seed`,
+`--max-steps`, `--resolution` (positive even pixels), and `--fps`.
 
-Collect offline trajectories using the provided script:
+### Trajectory contract
+
+For T actions, observations and poses contain **T+1 states**. Transition t is
+`observations[t], positions[t], headings[t], relative_goals[t], actions[t],
+observations[t+1], positions[t+1], headings[t+1]`.
+
+- `observations`: uint8 RGB `[T+1, 3, H, W]`, including initial and final frames.
+- `actions`: int64 `[T]`: FORWARD=0, TURN_LEFT=1, TURN_RIGHT=2, STOP=3.
+- `positions`: float32 `[T+1, 3]` in Habitat world XYZ, metres, Y up.
+- `headings`: float32 `[T+1]`, radians; zero faces -Z, positive turns toward -X.
+- `goal_position`: float32 `[3]`, fixed world XYZ goal.
+- `relative_goals`: float32 `[T+1, 3]`, robot (forward, left, up), metres.
+- `collisions`: bool `[T]`, corresponding to each executed action; STOP is false.
+- `shortest_path`: initial navmesh path points. `metrics` stores outcome and distances;
+  `metadata` stores scene, seed, version, and movement/camera playback settings.
+
+Quaternion geometry uses Habitat's `quat_rotate_vector` and quaternion inverse.
+`HabitatTrajectoryDataset` returns explicit current/next transition windows and
+rejects legacy data. It does not claim compatibility with continuous-action LeWM
+training. `configs/habitat_coord.yaml`, `configs/habitat_colab.yaml`, and the old
+Colab notebook are legacy, unvalidated training drafts, not smoke-test inputs.
+
+### Verification and troubleshooting
 
 ```bash
-# Collect 10,000 episodes (adjust based on your needs)
-python data/habitat_collector.py \
-  --config configs/habitat_pointnav.yaml \
-  --num_episodes 10000 \
-  --save_dir data/habitat_trajectories \
-  --seed 42
+python -m unittest discover -s tests -v
 ```
 
-**What gets collected:**
-- RGB frames at 224×224 resolution
-- Continuous actions: `(linear_velocity, angular_velocity)` in range [-1, 1]
-- Agent coordinates: `(x, z, yaw)` for each timestep
-- Goal information: target coordinates and optional goal images
-
-**Expected output:**
-```
-Collected 10000 episodes to data/habitat_trajectories
-```
-
-Each episode is saved as a `.pt` file containing:
-```python
-{
-    "observations": (T, 3, 224, 224),   # RGB frames
-    "actions": (T, 2),                   # (linear, angular) velocities
-    "coordinates": (T, 3),               # (x, z, yaw)
-    "goal_coord": (3,),                  # Target (x, z, yaw)
-    "goal_image": (3, 224, 224)          # Optional goal image
-}
-```
-
-### Step 4: Configure Training
-
-Create a Habitat-specific training config. A reference config is provided at `configs/habitat_coord.yaml`:
-
-```yaml
-defaults:
-  - _self_
-  - launcher: local
-  - model: lewm
-
-output_model_name: lewm_habitat_coord
-subdir: ${hydra:job.id}
-
-num_workers: 6
-train_split: 0.9
-seed: 3072
-img_size: 224
-
-# Habitat-specific data configuration
-data:
-  dataset:
-    num_steps: ${eval:'${wm.num_preds} + ${wm.history_size}'}
-    frameskip: 5
-    name: habitat_coord
-    keys_to_load:
-      - pixels
-      - action
-      - coordinates
-    keys_to_cache:
-      - action
-      - coordinates
-    trajectory_dir: data/habitat_trajectories
-
-trainer:
-  max_epochs: 50  # Adjust based on dataset size
-  devices: auto
-  accelerator: gpu
-  precision: bf16
-  gradient_clip_val: 1.0
-
-loader:
-  batch_size: 128  # Reduce if OOM
-  num_workers: ${num_workers}
-  persistent_workers: True
-  prefetch_factor: 3
-  pin_memory: True
-
-optimizer:
-  type: AdamW
-  lr: 1e-4
-  weight_decay: 1e-3
-
-wm:
-  type: lewm
-  history_size: 3
-  num_preds: 1
-  embed_dim: 192
-
-loss:
-  sigreg:
-    weight: 0.1
-    kwargs:
-      knots: 17
-      num_proj: 1024
-
-# Planning configuration for coordinate goals
-planning:
-  horizon: 5
-  cem_samples: 300
-  cem_iterations: 30
-  cem_elites: 30
-  mpc_steps: 5
-  goal_type: coordinate
-```
-
-### Step 5: Launch Training
-
-Train LeWM on your collected Habitat data:
-
-```bash
-# Using the provided config
-python train.py --config-name=habitat_coord.yaml
-
-# Or override specific parameters
-python train.py --config-name=habitat_coord.yaml \
-  trainer.max_epochs=100 \
-  loader.batch_size=64 \
-  optimizer.lr=5e-5
-```
-
-**Training on Laptop (Limited Resources):**
-
-For laptops with limited VRAM or CPU-only:
-
-```bash
-# Reduced batch size for 4-6GB VRAM
-python train.py --config-name=habitat_coord.yaml loader.batch_size=32
-
-# CPU-only training (much slower but works without GPU)
-python train.py --config-name=habitat_coord.yaml \
-  trainer.accelerator=cpu \
-  trainer.precision=32 \
-  loader.batch_size=16 \
-  num_workers=2
-
-# Quick experiment with fewer epochs
-python train.py --config-name=habitat_coord.yaml trainer.max_epochs=10
-```
-
-**Expected Training Time:**
-- **GPU (RTX 3060+):** ~2-4 hours for 50 epochs with 10k episodes
-- **CPU:** ~10-20 hours for 50 epochs (not recommended for full training)
-
-### Step 6: Monitor Training
-
-If WandB is enabled, monitor training progress at your WandB dashboard. Key metrics to watch:
-
-- `loss/prediction` - Should decrease over time
-- `loss/sigreg` - Regularization term (should remain stable)
-- `total_loss` - Combined objective
-- `reconstruction_error` - Quality of latent predictions
-
-### Step 7: Evaluate the Trained Model
-
-After training, evaluate your model on navigation tasks:
-
-```bash
-# Create evaluation config (adapt from config/eval/tworoom.yaml)
-# Save as config/eval/habitat.yaml
-
-python eval.py --config-name=habitat.yaml \
-  policy=habitat_coord/lewm_habitat_coord
-```
-
-**Evaluation modes:**
-1. **Coordinate-based navigation**: Navigate to specified (x, z) coordinates
-2. **Image-based navigation**: Navigate to match a goal image (Phase 2 extension)
-
-### Troubleshooting
-
-**Issue: No trajectory files found**
-```
-ValueError: No trajectory files found in data/habitat_trajectories
-```
-**Solution:** Run the data collection script first (Step 3).
-
-**Issue: CUDA out of memory**
-```
-RuntimeError: CUDA out of memory. Tried to allocate...
-```
-**Solution:** Reduce batch size:
-```bash
-python train.py --config-name=habitat_coord.yaml loader.batch_size=32
-```
-
-**Issue: habitat-sim import error**
-```
-ImportError: libGL.so.1: cannot open shared object file
-```
-**Solution:** Install OpenGL libraries:
-```bash
-sudo apt-get install -y libgl1-mesa-glx libglib2.0-0
-```
-
-**Issue: Slow data loading**
-**Solution:** Increase number of workers if you have CPU cores available:
-```bash
-python train.py --config-name=habitat_coord.yaml num_workers=8
-```
-
-### Customization Tips
-
-1. **Different frame skip rates:** Adjust `frameskip` in the data config to change temporal resolution
-2. **Longer prediction horizons:** Increase `wm.num_preds` for multi-step planning
-3. **Larger context window:** Increase `wm.history_size` for more temporal context
-4. **Alternative action spaces:** Modify `habitat_collector.py` to collect different action representations
-
-### Expected Performance
-
-With 10k episodes and 50 epochs of training, you should achieve:
-- **Success Rate:** 60-80% on simple point-goal navigation
-- **SPL (Success weighted by Path Length):** 0.5-0.7
-- **Latent space quality:** Meaningful physical structure encoding (verifiable via probing)
+Unit tests use explicit test doubles for alignment and termination; the demo never
+uses these. The quaternion API test skips if Habitat is absent. Only a successful
+real smoke command validates the renderer, navmesh, follower, and downloaded scene
+together. Missing Habitat, wrong versions, absent scenes, and failed navmeshes are
+errors; random frames are never substituted. EGL initialization errors require a
+working graphics driver and compatible headless Habitat build.
 
 ---
 

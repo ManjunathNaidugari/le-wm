@@ -1,4 +1,3 @@
-```yaml
 # Colab-specific files
 *.ipynb_checkpoints
 .checkpoint
@@ -63,4 +62,7 @@ htmlcov/
 # Habitat-specific
 *.log
 *.tmp
-```
+
+# Real Habitat assets and smoke outputs
+data/habitat_data/
+outputs/

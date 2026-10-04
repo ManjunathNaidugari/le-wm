@@ -1,0 +1,15 @@
+# Linux x86_64, headless EGL rendering. No Habitat-Lab required.
+name: lewm-habitat-smoke
+channels:
+  - conda-forge
+  - aihabitat
+dependencies:
+  - python=3.9.19
+  - habitat-sim=0.3.3
+  - headless
+  - numpy=1.26.4
+  - pip=24.2
+  - pip:
+      - torch==2.4.1
+      - imageio==2.35.1
+      - imageio-ffmpeg==0.5.1
