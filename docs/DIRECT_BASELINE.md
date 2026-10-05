@@ -144,13 +144,15 @@ curl --fail --location --retry 3 \
   https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/original/model.pth \
   --output /workspace/models/vjepa2-vitl-original.pth
 "$HABPY" scripts/direct_baseline.py check-encoder \
+  --trajectory /workspace/pilot-runs/three-scene-15/episode_000000.pt \
   --encoder-python "$FEATPY" --source-dir /workspace/vendor/vjepa2 \
   --checkpoint /workspace/models/vjepa2-vitl-original.pth
 ```
 
 Reuse an existing verified clone/checkpoint instead of repeating the clone/download.
-The check verifies hashes, dependencies, loading and a synthetic CUDA forward pass.
-It is not a real-trajectory or navigation result. Capture its first error intact.
+The check verifies hashes, dependencies, loading and a CUDA forward pass on the
+first causal window of the supplied recording. It does not measure navigation
+performance. Capture its first error intact.
 If GPU memory requires BF16, copy the feature config, set `precision: bfloat16`,
 and use that same `--feature-config` for extraction and all rollouts. Do not change
 the Habitat package versions to fix encoder import errors.
@@ -178,8 +180,10 @@ the Habitat package versions to fix encoder import errors.
 Inspect tiny loss, each present action's recall and fitting accuracy before claiming
 an overfit check passed. The commands do not guarantee a result in 200 epochs.
 Tiny rollout executes the included pilot identities and exports videos; performance
-on those training buildings is an integration result. Tiny/test checkpoints are
-explicitly blocked from final evaluation.
+on those training buildings is an integration result. Tiny checkpoints are
+explicitly blocked from final evaluation. Test encoders exist only under `tests/`;
+production training and checkpoint loading reject test features and recordings
+identified as synthetic. There are no production test-encoder override flags.
 
 The Habitat process keeps the policy head on CPU and launches a persistent
 `FEATPY -m jepa_navigation.baseline.worker` subprocess on the GPU. A bounded binary

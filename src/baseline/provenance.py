@@ -16,7 +16,9 @@ def classify_provenance(context, metadata, resolution=None):
                      any(str(metadata.get(k, '')).startswith('unit-fixture')
                          for k in ('habitat_sim_version', 'habitat_lab_version')))
     resolution = resolution or None
-    if learned:
+    if synthetic:
+        eligible, reason = False, 'synthetic recording cannot provide training labels'
+    elif learned:
         eligible, reason = False, 'learned-policy recording cannot provide expert labels'
     elif controller == EXPERT_CONTROLLER and (
             context.get('workflow') == 'gibson_pilot' or

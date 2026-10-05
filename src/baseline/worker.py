@@ -4,7 +4,7 @@ import json
 import subprocess
 import sys
 import numpy as np
-from .features import FeatureConfig, TestEncoder, official_encoder
+from .features import FeatureConfig, official_encoder
 
 MAX_PAYLOAD = 128 * 1024 * 1024
 
@@ -92,30 +92,26 @@ class WorkerClient:
         self.close()
 
 
-def worker_command(python, config, source_dir=None, checkpoint=None, device='cuda', test_encoder=False):
+def worker_command(python, config, source_dir=None, checkpoint=None, device='cuda'):
     command = [str(python), '-u', '-m', 'jepa_navigation.baseline.worker',
                '--feature-config', json.dumps(config.__dict__), '--device', device]
-    if test_encoder:
-        command += ['--test-encoder']
-    else:
-        if not source_dir or not checkpoint:
-            raise ValueError('Official worker requires source_dir and checkpoint; no auto-download')
-        command += ['--source-dir', str(source_dir), '--checkpoint', str(checkpoint)]
+    if not source_dir or not checkpoint:
+        raise ValueError('Official worker requires source_dir and checkpoint; no auto-download')
+    command += ['--source-dir', str(source_dir), '--checkpoint', str(checkpoint)]
     return command
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--feature-config', required=True)
-    parser.add_argument('--source-dir')
-    parser.add_argument('--checkpoint')
+    parser.add_argument('--source-dir', required=True)
+    parser.add_argument('--checkpoint', required=True)
     parser.add_argument('--device', default='cuda')
-    parser.add_argument('--test-encoder', action='store_true', help='Explicit wiring fixture, never real V-JEPA')
     args = parser.parse_args(argv)
     output = sys.stdout.buffer
     try:
         config = FeatureConfig(**json.loads(args.feature_config))
-        encoder = TestEncoder(config) if args.test_encoder else official_encoder(args.source_dir, args.checkpoint, config, args.device)
+        encoder = official_encoder(args.source_dir, args.checkpoint, config, args.device)
         send_message(output, {'identity': encoder.identity})
         while True:
             try:

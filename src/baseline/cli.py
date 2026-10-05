@@ -17,13 +17,12 @@ def feature_arguments(parser):
     parser.add_argument('--checkpoint', type=Path)
     parser.add_argument('--feature-config', type=Path, default=Path('configs/vjepa_features.yaml'))
     parser.add_argument('--encoder-device', default='cuda')
-    parser.add_argument('--test-encoder', action='store_true', help='Local fixture only, never real V-JEPA features')
 
 
 def make_worker(args):
     config = FeatureConfig(**yaml.safe_load(args.feature_config.read_text()))
     return WorkerClient(worker_command(args.encoder_python, config, args.source_dir, args.checkpoint,
-                                       args.encoder_device, args.test_encoder))
+                                       args.encoder_device))
 
 
 def main(argv=None):
@@ -77,7 +76,6 @@ def main(argv=None):
     p.add_argument('--tiny-steps', type=int)
     p.add_argument('--epochs', type=int)
     p.add_argument('--goal-only', action='store_true')
-    p.add_argument('--allow-test-encoder', action='store_true')
     p.add_argument('--device', default='cpu')
     p = commands.add_parser('collect')
     p.add_argument('--splits', type=Path, required=True)
@@ -99,6 +97,7 @@ def main(argv=None):
     p.add_argument('--max-steps', type=int, default=500)
     feature_arguments(p)
     p = commands.add_parser('check-encoder')
+    p.add_argument('--trajectory', type=Path, required=True, help='Recorded expert .pt trajectory for the encoder check')
     feature_arguments(p)
     args = parser.parse_args(argv)
     try:
@@ -138,17 +137,26 @@ def main(argv=None):
             if args.command == 'extract':
                 from .provenance import preflight_audit
                 preflight_audit(args.audit, args.splits)
+            else:
+                import torch
+                from jepa_navigation.data.gibson_pilot import validate_pilot
+                from .features import raw_clip
+                from .common import sha256_file
+                episode = torch.load(args.trajectory, map_location='cpu', weights_only=True)
+                validate_pilot(episode)
+                if not len(episode['actions']):
+                    raise ValueError('Encoder check requires a trajectory with actions')
             with make_worker(args) as encoder:
                 if args.command == 'extract':
                     from .cache import extract_cache
                     result = extract_cache(args.audit, args.cache_dir, encoder, args.chunk_size)
                     print(f"Cached {len(result['episodes'])} episodes; encoder={encoder.identity['backbone']}")
                 else:
-                    import numpy as np
                     config = FeatureConfig(**encoder.identity['feature_config'])
-                    result = encoder.encode(np.zeros((config.history_length, 3, 224, 224), dtype=np.uint8))
-                    print(json.dumps(dict(identity=encoder.identity, synthetic_probe_shape=list(result.shape),
-                                          note='Encoder/loading/preprocessing check only, not real trajectory/navigation validation'), indent=2))
+                    result = encoder.encode(raw_clip(episode['observations'], 0, config))
+                    print(json.dumps(dict(identity=encoder.identity, feature_shape=list(result.shape),
+                                          trajectory_sha256=sha256_file(args.trajectory), action_timestep=0,
+                                          note='Recorded-frame encoder check only; not a navigation performance result'), indent=2))
         elif args.command == 'train':
             from .training import train_policy
             values = yaml.safe_load(args.config.read_text())
@@ -157,7 +165,7 @@ def main(argv=None):
                     values[key] = getattr(args, key)
             if args.goal_only:
                 values['goal_only'] = True
-            train_policy(args.cache_dir, args.splits, args.output_dir, TrainConfig(**values), args.device, args.allow_test_encoder)
+            train_policy(args.cache_dir, args.splits, args.output_dir, TrainConfig(**values), args.device)
         elif args.command == 'collect':
             from .execution import execute_plan
             from jepa_navigation.utils.config import load_config, SimulatorConfig, NavigationConfig

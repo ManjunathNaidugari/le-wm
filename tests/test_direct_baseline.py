@@ -18,7 +18,7 @@ from jepa_navigation.baseline.audit import audit_run, combine_audits
 from jepa_navigation.baseline.cache import extract_cache, validate_cache
 from jepa_navigation.baseline.common import fingerprint, sha256_file, write_json
 from jepa_navigation.baseline.execution import OnlinePolicy, execute_plan, learned_runner
-from jepa_navigation.baseline.features import FeatureConfig, FrozenEncoder, CausalHistory, TestEncoder, causal_indices, raw_clip
+from jepa_navigation.baseline.features import FeatureConfig, FrozenEncoder, CausalHistory, causal_indices, raw_clip
 from jepa_navigation.baseline.policy import DirectPolicy
 from jepa_navigation.baseline.splits import integration_split, inspect_availability, prepare_splits, validate_splits
 from jepa_navigation.baseline.training import TrainConfig, train_policy, load_policy, CachedTransitions
@@ -29,12 +29,15 @@ from jepa_navigation.navigation.actions import Action, to_lab_action
 from jepa_navigation.utils.config import SimulatorConfig, NavigationConfig
 from test_gibson_pilot import FixtureEnv, fixture_episode as original_fixture_episode
 from test_pointnav import raw_episode, write_json
+from baseline_fixtures import TestEncoder, train_fixture_policy, load_fixture_policy
 
 
 def fixture_episode(*args, **kwargs):
     episode = original_fixture_episode(*args, **kwargs)
     episode['metadata'].update(controller='ShortestPathFollower(stop_on_error=False)',
-                               workflow='habitat_lab_pointnav_reference', synthetic=True)
+                               workflow='habitat_lab_pointnav_reference',
+                               habitat_sim_version='0.3.3', habitat_lab_version='0.3.3')
+    # Schema-shaped test inputs live only in TemporaryDirectory; no research data is produced.
     return episode
 
 
@@ -281,7 +284,9 @@ class BaselineTests(unittest.TestCase):
         header, array = read_message(stream)
         np.testing.assert_array_equal(array, clip)
         python = os.environ.get('BASELINE_TEST_ENCODER_PYTHON', sys.executable)
-        with WorkerClient(worker_command(python, self.config, test_encoder=True)) as worker:
+        with WorkerClient([python, str(Path(__file__).with_name('feature_worker_fixture.py')),
+                          '--feature-config', json.dumps(asdict(self.config)),
+                          '--source-dir', 'test-only', '--checkpoint', 'test-only']) as worker:
             self.assertTrue(worker.identity['test_encoder'])
             np.testing.assert_array_equal(worker.encode(clip), self.encoder.encode(clip))
 
@@ -293,11 +298,11 @@ class BaselineTests(unittest.TestCase):
         config = TrainConfig(epochs=45, learning_rate=0.02, batch_size=2, hidden_dim=16,
                              projection_dim=4, weight_decay=0, tiny_steps=2, class_weights=False)
         with contextlib.redirect_stdout(io.StringIO()):
-            metadata = train_policy(cache, split, output, config, allow_test_encoder=True)
+            metadata = train_fixture_policy(cache, split, output, config)
         self.assertTrue(metadata['integration_only'])
         self.assertGreaterEqual(metadata['epochs'][-1]['development']['accuracy'], 0.99)
         self.assertIn('resubstitution', metadata['validation_label'])
-        model, saved = load_policy(output / 'best.pt')
+        model, saved = load_fixture_policy(output / 'best.pt')
         self.assertTrue(torch.allclose(model.goal_mean, torch.tensor([0.5, 0., 0.])))
         self.assertEqual(saved['actions'], ['FORWARD', 'TURN_LEFT', 'TURN_RIGHT', 'STOP'])
         with self.assertRaisesRegex(ValueError, 'Test encoder'):
@@ -342,9 +347,11 @@ class BaselineTests(unittest.TestCase):
         cache = self.root / 'experiment-cache'
         extract_cache(combined, cache, self.encoder, chunk_size=1)
         with contextlib.redirect_stdout(io.StringIO()):
-            report = train_policy(cache, plan_path, self.root / 'normal-training',
-                                  TrainConfig(epochs=1, batch_size=2), allow_test_encoder=True)
-        model, _ = load_policy(self.root / 'normal-training/last.pt')
+            report = train_fixture_policy(cache, plan_path, self.root / 'normal-training',
+                                  TrainConfig(epochs=1, batch_size=2))
+        with self.assertRaisesRegex(ValueError, 'Test encoder'):
+            load_policy(self.root / 'normal-training/last.pt')
+        model, _ = load_fixture_policy(self.root / 'normal-training/last.pt')
         self.assertTrue(torch.allclose(model.goal_mean, torch.tensor([0.5, 0., 0.])))
         self.assertEqual(report['epochs'][0]['development']['samples'], 2)
         self.assertIn('building-disjoint', report['validation_label'])

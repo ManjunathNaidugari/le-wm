@@ -13,6 +13,7 @@ from jepa_navigation.baseline.common import fingerprint, read_json, sha256_file,
 from jepa_navigation.baseline.provenance import preflight_audit
 from jepa_navigation.baseline.splits import integration_split, resolve_training_inputs, training_definitions
 from jepa_navigation.baseline.training import TrainConfig, train_policy
+from baseline_fixtures import train_fixture_policy
 
 
 class ReviewTests(TestCase):
@@ -20,6 +21,35 @@ class ReviewTests(TestCase):
     make_audit = fixtures.BaselineTests.make_audit
     make_cache = fixtures.BaselineTests.make_cache
     make_plan = fixtures.BaselineTests.make_plan
+
+    def test_synthetic_recording_cannot_be_resolved_as_expert(self):
+        directory, _, _ = self.make_audit()
+        self.change_recording(directory, lambda e: e['metadata'].update(synthetic=True))
+        resolution = {'A/0': dict(kind='expert', reason='test override', evidence='test only')}
+        row = audit_run(directory, self.root/'synthetic.json', expert_resolutions=resolution)['episodes'][0]
+        self.assertFalse(row['included'])
+        self.assertIn('synthetic', row['inclusion_reason'])
+
+    def test_production_training_rejects_test_features(self):
+        _, audit, cache = self.make_cache()
+        split = self.root/'split.json'
+        integration_split(audit, split)
+        with self.assertRaisesRegex(ValueError, 'Test encoder'):
+            train_policy(cache, split, self.root/'forbidden', TrainConfig(epochs=1, tiny_steps=2))
+        self.assertFalse((self.root/'forbidden').exists())
+
+    def test_encoder_check_uses_recorded_rgb(self):
+        directory, _, _ = self.make_audit()
+        episode = torch.load(directory/'episode_000000.pt', weights_only=True)
+        with patch('jepa_navigation.baseline.cli.make_worker') as factory, contextlib.redirect_stdout(io.StringIO()):
+            worker = factory.return_value.__enter__.return_value
+            worker.identity = self.encoder.identity
+            worker.encode.side_effect = self.encoder.encode
+            code = main(['check-encoder', '--trajectory', str(directory/'episode_000000.pt'),
+                         '--encoder-python', 'test-only-worker'])
+        self.assertEqual(code, 0)
+        clip = worker.encode.call_args.args[0]
+        self.assertTrue((clip == episode['observations'][0].numpy()).all())
 
     def change_recording(self, directory, mutate, workflow=None, signature=None):
         path = directory/'episode_000000.pt'
@@ -90,7 +120,7 @@ class ReviewTests(TestCase):
         self.assertIn('zero-transition', row['inclusion_reason'])
         with patch('jepa_navigation.baseline.cli.make_worker') as worker:
             code = main(['extract','--audit',str(audit),'--cache-dir',str(self.root/'zero-cache'),
-                         '--encoder-python','not-an-executable','--test-encoder'])
+                         '--encoder-python','not-an-executable'])
         self.assertEqual(code, 2)
         worker.assert_not_called()
         with self.assertRaises(ValueError):
@@ -121,7 +151,7 @@ class ReviewTests(TestCase):
         cache['fingerprint'] = fingerprint(cache['signature'])
         write_json(cache_root/'cache.json', cache)
         with self.assertRaisesRegex(ValueError,'Expert provenance'):
-            train_policy(cache_root, split, self.root/'bad-training', TrainConfig(epochs=1,tiny_steps=2), allow_test_encoder=True)
+            train_policy(cache_root, split, self.root/'bad-training', TrainConfig(epochs=1,tiny_steps=2))
         self.assertFalse((self.root/'bad-training').exists())
 
     def test_checkpoint_own_epoch_and_best_epoch_are_consistent(self):
@@ -132,7 +162,7 @@ class ReviewTests(TestCase):
         outputs = [dict(metrics,loss=loss) for loss in (3.,3.,2.,1.,1.,2.)]
         root = self.root/'selection'
         with patch('jepa_navigation.baseline.training.run_epoch', side_effect=outputs), contextlib.redirect_stdout(io.StringIO()):
-            train_policy(cache, split, root, TrainConfig(epochs=3,tiny_steps=2), allow_test_encoder=True)
+            train_fixture_policy(cache, split, root, TrainConfig(epochs=3,tiny_steps=2))
         final = read_json(root/'training.json')
         best, last = [torch.load(root/(name+'.pt'),weights_only=True) for name in ('best','last')]
         self.assertEqual((final['checkpoint_epoch'], final['best_epoch']), (3,2))

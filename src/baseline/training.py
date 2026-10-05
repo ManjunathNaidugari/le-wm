@@ -134,12 +134,16 @@ def run_epoch(model, loader, device, optimizer=None, weights=None):
     return classification_metrics(confusion, total, count)
 
 
-def train_policy(cache_dir, split_path, output_dir, config, device='cpu', allow_test_encoder=False):
+def require_real_encoder(encoder):
+    if encoder.get('test_encoder') is not False or encoder.get('backbone') != 'official_vjepa2_vit_large':
+        raise ValueError('Test encoder or unknown features are forbidden; use official V-JEPA features')
+
+
+def train_policy(cache_dir, split_path, output_dir, config, device='cpu'):
     os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
     cache = validate_cache(cache_dir)
     encoder = cache['signature']['encoder']
-    if encoder['test_encoder'] and not allow_test_encoder:
-        raise ValueError('Test encoder cache is not real V-JEPA; explicit wiring-test authorization required')
+    require_real_encoder(encoder)
     plan = validate_splits(read_json(split_path))
     if plan['purpose'] == 'integration' and not config.tiny_steps:
         raise ValueError('Pilot integration split requires explicit tiny_steps mode')
@@ -196,7 +200,7 @@ def train_policy(cache_dir, split_path, output_dir, config, device='cpu', allow_
                     normalization_source='training transitions only; tiny mode uses only its selected transitions',
                     tiny_selection='deterministic round-robin across present action classes, then chronological order',
                     selected_train_transitions=[dict(identity=train.items[i][0]['identity'], action_timestep=t) for i, t in train.indices] if config.tiny_steps else None,
-                    validation_label=validation_label, integration_only=bool(config.tiny_steps) or encoder['test_encoder'] or any(i[0]['provenance']['synthetic'] for i in train.items + development.items),
+                    validation_label=validation_label, integration_only=bool(config.tiny_steps),
                     expert_sources=[dict(identity=i[0]['identity'], source_sha256=i[0]['source_sha256'], provenance=i[0]['provenance']) for i in train.items + development.items],
                     packages=dict(torch=str(torch.__version__), numpy=str(np.__version__)), epochs=[])
     write_json(root / 'training.json', metadata)
@@ -228,6 +232,9 @@ def load_policy(path, device='cpu'):
     meta = checkpoint['metadata']
     if meta['workflow'] != 'direct_navigation_policy' or meta['schema_version'] != 1 or meta['actions'] != ACTIONS or meta['recorded_to_habitat'] != [1, 2, 3, 0]:
         raise ValueError('Policy checkpoint action/schema mismatch')
+    require_real_encoder(meta['encoder'])
+    if any(source['provenance'].get('synthetic') for source in meta.get('expert_sources', [])):
+        raise ValueError('Synthetic training sources are forbidden in policy checkpoints')
     validate_splits(meta['splits'])
     model = DirectPolicy(**meta['model_config']).to(device)
     model.load_state_dict(checkpoint['model_state'], strict=True)
