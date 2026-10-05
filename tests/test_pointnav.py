@@ -12,11 +12,11 @@ from unittest.mock import patch
 import numpy as np
 import torch
 
-from data.pointnav import load_pointnav, parse_episode
-from data.pointnav_collection import collect_pointnav
-from data.habitat_dataset_collection import validate_dataset
-from datasets.habitat_dataset import HabitatTrajectoryDataset
-from envs.pointnav_wrapper import PointNavEnv
+from jepa_navigation.data.pointnav import load_pointnav, parse_episode
+from jepa_navigation.data.pointnav_collection import collect_pointnav
+from jepa_navigation.data.habitat_dataset_collection import validate_dataset
+from jepa_navigation.data.habitat_dataset import HabitatTrajectoryDataset
+from jepa_navigation.simulator.pointnav_env import PointNavEnv
 from test_habitat_smoke import FakeEnv
 
 
@@ -100,7 +100,7 @@ class PointNavTests(unittest.TestCase):
         definitions = [parse_episode(raw_episode(f'gibson/{name}.glb'), self.scenes, 'fixture', 'hash')
                        for name in ('A', 'B')]
         RecordedEnv.closed = 0
-        with patch('data.pointnav_collection.PointNavEnv', RecordedEnv):
+        with patch('jepa_navigation.data.pointnav_collection.PointNavEnv', RecordedEnv):
             first = collect_pointnav(definitions, self.root / 'out', max_steps=3)
             second = collect_pointnav(definitions, self.root / 'repeat', max_steps=3)
         self.assertEqual(first, second)

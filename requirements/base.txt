@@ -1,0 +1,5 @@
+numpy==1.26.4
+torch==2.4.1
+imageio==2.35.1
+imageio-ffmpeg==0.5.1
+PyYAML==6.0.2

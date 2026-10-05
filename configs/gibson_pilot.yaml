@@ -1,0 +1,10 @@
+seed: 42
+max_steps: 500
+forward_step_m: 0.25
+turn_degrees: 15.0
+goal_radius_m: 0.2
+max_y_delta_m: 0.1
+fps: 10
+scene_data_dir: /workspace/datasets/scene_datasets
+episode_data: /workspace/datasets/pointnav/gibson/v1/train/train.json.gz
+output_dir: /workspace/pilot-runs/gibson-one

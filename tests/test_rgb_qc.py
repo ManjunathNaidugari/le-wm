@@ -3,8 +3,8 @@ from pathlib import Path
 import unittest
 import torch
 
-from data.rgb_qc import rgb_quality, qc_dataset
-from data.habitat_collector import collect_episode
+from jepa_navigation.data.rgb_qc import rgb_quality, qc_dataset
+from jepa_navigation.data.habitat_collector import collect_episode
 from test_habitat_smoke import FakeEnv
 
 

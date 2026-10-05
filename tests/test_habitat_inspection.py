@@ -10,8 +10,8 @@ from unittest.mock import patch
 import imageio.v2 as imageio
 import torch
 
-from data.habitat_dataset_collection import collect_dataset
-from scripts.inspect_habitat_dataset import main
+from jepa_navigation.data.habitat_dataset_collection import collect_dataset
+from jepa_navigation.utils.inspection_cli import main
 from test_habitat_dataset import SeededEnv
 
 

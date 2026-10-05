@@ -47,7 +47,30 @@ or overwrite. Missing Habitat/assets cause errors, never synthetic observations.
 Smoke exits 0 on success, 1 on rollout failure, 2 on setup error. Collection exits
 0 when all requested rollouts are saved (including failures), 2 on error.
 
-## Gibson PointNav: start small
+## Current Gibson pilot
+
+Use the [Gibson pilot guide](docs/GIBSON_PILOT.md) for the new isolated
+Habitat-Sim **0.3.3** + Habitat-Lab **0.3.3** reference workflow. It selects
+explicit **train** buildings, preserves official episode definitions, records
+every attempted rollout and automatically exports RGB + top-down MP4s. Keep
+future final evaluation buildings separate. The direct-Sim environment above
+remains available for the existing commands.
+
+```bash
+python scripts/gibson_pilot.py run \
+  --episode-data /workspace/datasets/pointnav/gibson/v1/train/train.json.gz \
+  --scene-data-dir /workspace/datasets/scene_datasets \
+  --scenes Allensville --episode-id 0 \
+  --output-dir /workspace/pilot-runs/one
+```
+
+Create `environment-gibson-pilot.yml` and supply the matching external assets
+first. See the guide for batch, validation, export and repeatability commands,
+[verification evidence](docs/GIBSON_PILOT_RESULTS.md), and
+[milestone boundaries](docs/MILESTONES.md). Actual Linux/Gibson execution and
+visual acceptance are pending; local fixture tests cannot complete this milestone.
+
+## Existing direct-Sim PointNav tools
 
 Supply externally obtained Gibson scene meshes and official Habitat PointNav-v1
 JSON/JSON.gz episodes. No proprietary assets are included or downloaded by collection.
@@ -56,7 +79,7 @@ See [PointNav and QC details](docs/HABITAT_DATA.md) for layouts, assumptions and
 ```bash
 python scripts/collect_habitat_dataset.py --dataset gibson \
   --scene-data-dir /workspace/datasets/scene_datasets \
-  --episode-data /workspace/datasets/pointnav/gibson/v1/val/val.json.gz \
+  --episode-data /workspace/datasets/pointnav/gibson/v1/train/train.json.gz \
   --num-episodes 20 --seed 42 --output-dir /workspace/gibson_test
 python scripts/inspect_habitat_dataset.py --dataset-dir /workspace/gibson_test --qc
 python scripts/inspect_habitat_dataset.py --dataset-dir /workspace/gibson_test --qc --export-flagged

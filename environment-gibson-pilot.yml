@@ -1,0 +1,26 @@
+# Create a NEW Linux x86_64 environment; preserve the working Sim-only environment.
+name: gibson-pilot
+channels:
+  - conda-forge
+  - aihabitat
+dependencies:
+  - python=3.9.19
+  - habitat-sim=0.3.3
+  - headless
+  - numpy=1.26.4
+  - pip=24.2
+  - pip:
+      # Habitat-Lab v0.3.3, immutable tag commit; install only habitat-lab subpackage.
+      - "habitat-lab @ git+https://github.com/facebookresearch/habitat-lab.git@094d6be2f9d057e4781a68ae792132895fd4d3d0#subdirectory=habitat-lab"
+      - hydra-core==1.3.2
+      - omegaconf==2.3.0
+      - torch==2.4.1
+      - imageio==2.35.1
+      - imageio-ffmpeg==0.5.1
+      - PyYAML==6.0.2
+      # Keep NumPy 1.26 compatible wheels; newest OpenCV requires NumPy 2.
+      - opencv-python==4.10.0.84
+      - numba==0.60.0
+      - numpy-quaternion==2023.0.4
+      - scipy==1.13.1
+      - gym==0.23.0

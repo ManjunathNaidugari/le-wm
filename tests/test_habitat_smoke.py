@@ -7,9 +7,9 @@ from types import ModuleType
 from unittest.mock import patch
 import numpy as np
 import torch
-from data.habitat_collector import collect_episode
-from datasets.habitat_dataset import HabitatTrajectoryDataset, validate_trajectory
-from envs.habitat_wrapper import Action, HabitatSmokeEnv, pose_and_goal, require_habitat
+from jepa_navigation.data.habitat_collector import collect_episode
+from jepa_navigation.data.habitat_dataset import HabitatTrajectoryDataset, validate_trajectory
+from jepa_navigation.simulator.habitat_env import Action, HabitatSmokeEnv, pose_and_goal, require_habitat
 
 
 class FakeEnv:

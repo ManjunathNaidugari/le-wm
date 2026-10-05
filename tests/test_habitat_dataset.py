@@ -8,9 +8,9 @@ import unittest
 
 import torch
 from test_habitat_smoke import FakeEnv
-from data.habitat_collector import collect_episode
-from data.habitat_dataset_collection import collect_dataset, episode_seed, summary, validate_dataset
-from datasets.habitat_dataset import HabitatTrajectoryDataset, validate_trajectory
+from jepa_navigation.data.habitat_collector import collect_episode
+from jepa_navigation.data.habitat_dataset_collection import collect_dataset, episode_seed, summary, validate_dataset
+from jepa_navigation.data.habitat_dataset import HabitatTrajectoryDataset, validate_trajectory
 
 
 class SeededEnv(FakeEnv):

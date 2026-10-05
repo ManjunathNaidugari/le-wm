@@ -1,0 +1,5 @@
+resolution: 224
+camera_height_m: 1.5
+hfov_degrees: 90.0
+agent_height_m: 1.5
+agent_radius_m: 0.1

@@ -1,0 +1,3 @@
+# v0.1 rendering uses the Conda Habitat-Sim EGL build and the system GPU driver.
+# No neural GPU workloads or extra Python GPU packages are needed yet.
+-r base.txt

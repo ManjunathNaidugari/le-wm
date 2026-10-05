@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jepa-navigation"
+version = "0.1.0"
+description = "Goal-conditioned indoor navigation simulator foundation"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+dynamic = ["dependencies"]
+
+[tool.setuptools]
+package-dir = {jepa_navigation = "src"}
+packages = ["jepa_navigation", "jepa_navigation.simulator", "jepa_navigation.navigation", "jepa_navigation.data", "jepa_navigation.utils"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements/base.txt"]}
+
+[project.scripts]
+jepa-test-habitat = "jepa_navigation.utils.navigation_cli:verify_main"
+jepa-run-expert = "jepa_navigation.utils.navigation_cli:run_main"
+jepa-record-episode = "jepa_navigation.utils.navigation_cli:record_main"
+jepa-collect = "jepa_navigation.utils.navigation_cli:collect_main"
+jepa-inspect = "jepa_navigation.utils.inspection_cli:main"
+jepa-gibson-pilot = "jepa_navigation.utils.pilot_cli:main"
