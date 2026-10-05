@@ -1,7 +1,18 @@
 # Gibson pilot handoff — 5 October 2026
 
-Implementation is ready for remote verification. **Real-data acceptance is pending.**
-No official Gibson episode was executed here, and no simulation MP4 is claimed.
+This records the earlier local handoff. **Comprehensive visual acceptance remains pending.**
+No official Gibson episode was executed by this local agent.
+
+## Subsequent RunPod result reported by the user
+
+For the direct-baseline milestone, the user reports Python 3.9.19, Habitat-Sim/Lab
+0.3.3, 15 expert successes across **Adrian, Albertville and Anaheim**, no runtime
+or video errors, all trajectories passing validation, and one exact repeated
+episode comparison (RGB/actions/poses/collisions/metrics). Videos played, but some
+views appeared close to walls; visual quality has not been comprehensively accepted.
+The session is closed; assets and `/workspace/pilot-runs/three-scene-15` persist.
+These results were supplied by the user, not re-executed or independently inspected
+on this Mac. Later historical statements below describe the earlier handoff.
 
 ## Repository preservation
 

@@ -18,7 +18,7 @@ def main():
     from habitat.utils.visualizations import maps
     config = build_lab_config(habitat, SimulatorConfig(), NavigationConfig(), 0.2)
     for name, expected in [('numpy', '1.26.4'), ('habitat-lab', '0.3.3'),
-                           ('hydra-core', '1.3.2'), ('omegaconf', '2.3.0')]:
+                           ('hydra-core', '1.3.2'), ('omegaconf', '2.3.0'), ('Pillow', '10.4.0')]:
         if importlib.metadata.version(name) != expected:
             raise RuntimeError(f'{name} must be {expected}')
     assert from_lab_action(HabitatSimActions.stop) == Action.STOP

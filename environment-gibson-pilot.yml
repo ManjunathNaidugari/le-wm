@@ -24,3 +24,5 @@ dependencies:
       - numpy-quaternion==2023.0.4
       - scipy==1.13.1
       - gym==0.23.0
+      # Required by the successfully executed RunPod pilot; do not upgrade implicitly.
+      - Pillow==10.4.0

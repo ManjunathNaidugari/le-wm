@@ -1,0 +1,8 @@
+# Original V-JEPA 2 ViT-L/16, 64-frame checkpoint; simulator-step history, not MP4 FPS.
+history_length: 64
+frame_stride: 1
+crop_size: 256
+grid_size: 4
+precision: float32
+padding: repeat_first
+pooling: temporal_mean_and_latest_spatial_grid

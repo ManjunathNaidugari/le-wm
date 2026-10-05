@@ -5,8 +5,10 @@ Bachelor's thesis comparing two planned approaches to robot-relative coordinate 
 - **Direct goal-conditioned policy:** visual representation + relative goal → discrete action.
 - **Action-conditioned latent predictor:** `z_t + action → predicted z_(t+1)`, used with short-horizon planning.
 
-**V-JEPA is not implemented yet.** Neither policy training nor a latent planner is
-implemented in the current navigation pipeline. Legacy LeWM code is retained for
+**The first frozen V-JEPA 2 direct baseline is implemented for runtime verification.**
+Its pretrained GPU extraction, real-data training and learned Habitat execution
+remain unverified. Follow [the direct baseline guide](docs/DIRECT_BASELINE.md).
+The predictive model and planner remain future work. Legacy LeWM code is retained for
 reference, not as the thesis architecture; see [repository audit](docs/REPOSITORY_AUDIT.md).
 The original upstream MIT [license](LICENSE) is preserved.
 
@@ -17,9 +19,9 @@ The original upstream MIT [license](LICENSE) is preserved.
 | Habitat-Sim smoke test | Complete; verified on Linux / RTX 3090 / EGL |
 | Deterministic expert collection | Complete |
 | RGB/data validation | In progress; heuristic QC requires real-data review |
-| Gibson PointNav integration | Current milestone; real-asset validation pending |
-| V-JEPA extraction | Next, not implemented |
-| Direct baseline | Later |
+| Gibson PointNav integration | User reports 15 successful RunPod pilot episodes; comprehensive visual acceptance pending |
+| V-JEPA extraction | Implemented; official preprocessing checked locally, pretrained GPU execution pending |
+| Direct baseline | Implemented; synthetic wiring/overfit tests pass, real-data training and closed-loop checks pending |
 | Latent predictor/planner | Later |
 
 Navigation success does not establish valid rendering. Previously observed dark/clipped
@@ -67,8 +69,10 @@ python scripts/gibson_pilot.py run \
 Create `environment-gibson-pilot.yml` and supply the matching external assets
 first. See the guide for batch, validation, export and repeatability commands,
 [verification evidence](docs/GIBSON_PILOT_RESULTS.md), and
-[milestone boundaries](docs/MILESTONES.md). Actual Linux/Gibson execution and
-visual acceptance are pending; local fixture tests cannot complete this milestone.
+[milestone boundaries](docs/MILESTONES.md). Comprehensive visual acceptance
+remains pending. The user reports successful Linux execution on
+Adrian, Albertville and Anaheim; that report is recorded separately from local
+verification. Local fixture tests cannot establish rendering or learned performance.
 
 ## Existing direct-Sim PointNav tools
 

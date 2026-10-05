@@ -1,0 +1,21 @@
+# Install Conda/environment on local disk (/opt/conda), not the FUSE /workspace mount.
+# Habitat's working environment stays separate; binary stdio bridges online inference.
+name: vjepa-features
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9.19
+  - pip=24.2
+  - numpy=1.26.4
+  - pip:
+      - torch==2.4.1
+      - torchvision==0.19.1
+      - timm==1.0.9
+      - einops==0.8.0
+      - Pillow==10.4.0
+      # Required by the official preprocessing module; no Habitat graphics imports.
+      - opencv-python-headless==4.10.0.84
+      - PyYAML==6.0.2
+      # Satisfy this repository's package metadata without installing Habitat.
+      - imageio==2.35.1
+      - imageio-ffmpeg==0.5.1
