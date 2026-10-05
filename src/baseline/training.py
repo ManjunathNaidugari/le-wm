@@ -4,12 +4,13 @@ from collections import OrderedDict
 from pathlib import Path
 import random
 import os
+import copy
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 from .common import ACTIONS, read_json, sha256_file, write_json
 from .cache import validate_cache
-from .splits import validate_splits
+from .splits import validate_splits, training_definitions
 from .policy import DirectPolicy
 
 
@@ -143,13 +144,13 @@ def train_policy(cache_dir, split_path, output_dir, config, device='cpu', allow_
     if plan['purpose'] == 'integration' and not config.tiny_steps:
         raise ValueError('Pilot integration split requires explicit tiny_steps mode')
     from .common import identity
-    train_keys = [identity(e) for e in plan['splits']['train']['episodes']]
+    train_keys = [identity(e) for e in training_definitions(plan, 'train')]
     train = CachedTransitions(cache_dir, cache, train_keys, config.tiny_steps)
     if config.tiny_steps:
         development = train
         validation_label = 'tiny subset resubstitution; integration check, no generalization claim'
     else:
-        development = CachedTransitions(cache_dir, cache, [identity(e) for e in plan['splits']['development']['episodes']])
+        development = CachedTransitions(cache_dir, cache, [identity(e) for e in training_definitions(plan, 'development')])
         validation_label = 'building-disjoint development; final evaluation never selects checkpoints'
     # Validate cache/source definitions against the saved split; source IDs alone are insufficient.
     keys_to_definition = {tuple(identity(e)): e for phase in ('train', 'development') for e in plan['splits'][phase]['episodes']}
@@ -195,7 +196,8 @@ def train_policy(cache_dir, split_path, output_dir, config, device='cpu', allow_
                     normalization_source='training transitions only; tiny mode uses only its selected transitions',
                     tiny_selection='deterministic round-robin across present action classes, then chronological order',
                     selected_train_transitions=[dict(identity=train.items[i][0]['identity'], action_timestep=t) for i, t in train.indices] if config.tiny_steps else None,
-                    validation_label=validation_label, integration_only=bool(config.tiny_steps) or encoder['test_encoder'],
+                    validation_label=validation_label, integration_only=bool(config.tiny_steps) or encoder['test_encoder'] or any(i[0]['provenance']['synthetic'] for i in train.items + development.items),
+                    expert_sources=[dict(identity=i[0]['identity'], source_sha256=i[0]['source_sha256'], provenance=i[0]['provenance']) for i in train.items + development.items],
                     packages=dict(torch=str(torch.__version__), numpy=str(np.__version__)), epochs=[])
     write_json(root / 'training.json', metadata)
     best_loss = float('inf')
@@ -203,16 +205,19 @@ def train_policy(cache_dir, split_path, output_dir, config, device='cpu', allow_
         train_metrics = run_epoch(model, train_loader, device, optimizer, weights)
         dev_metrics = run_epoch(model, dev_loader, device)
         metadata['epochs'].append(dict(epoch=epoch + 1, train=train_metrics, development=dev_metrics))
-        state = dict(metadata=metadata, model_state={k: v.detach().cpu().clone() for k, v in model.state_dict().items()}, epoch=epoch+1)
+        improved = dev_metrics['loss'] < best_loss
+        if improved:
+            best_loss = dev_metrics['loss']
+            metadata.update(best_epoch=epoch+1, best_development_loss=best_loss)
+        metadata['checkpoint_epoch'] = epoch+1
+        state = dict(metadata=copy.deepcopy(metadata), model_state={k: v.detach().cpu().clone() for k, v in model.state_dict().items()}, epoch=epoch+1)
         tmp = root / 'last.pt.partial'
         torch.save(state, tmp)
         tmp.replace(root / 'last.pt')
-        if dev_metrics['loss'] < best_loss:
-            best_loss = dev_metrics['loss']
+        if improved:
             tmp = root / 'best.pt.partial'
             torch.save(state, tmp)
             tmp.replace(root / 'best.pt')
-            metadata['best_epoch'] = epoch+1
         write_json(root / 'training.json', metadata)
         print(f"epoch={epoch+1} train_nll={train_metrics['loss']:.5f} dev_nll={dev_metrics['loss']:.5f} dev_accuracy={dev_metrics['accuracy']:.3f}", flush=True)
     return metadata

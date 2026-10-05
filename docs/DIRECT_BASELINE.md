@@ -111,12 +111,28 @@ The compact audit records each requested identity, structural/missing-file error
 success, step/action counts, collisions, negligible-forward displacement (≤0.01m),
 RGB flags and source frame indices. Collision rate divides by non-STOP actions,
 including turns; negligible-forward rate divides by FORWARD actions. Zero
-denominators yield zero and raw denominator counts are saved. Valid failed
-episodes and heuristically flagged frames remain included. Structural failures
-are explicitly excluded. Optional `--exclusions exclusions.json` uses a mapping
+denominators yield zero and raw denominator counts are saved. Valid expert failures
+with transitions and heuristically flagged frames remain included. Structural
+failures, zero-transition recordings and learned/unknown-provenance labels are
+ineligible for behavior cloning and remain in audit/failure records.
+Optional `--exclusions exclusions.json` uses a mapping
 like `{"Adrian/123": "researcher's documented review reason"}`; unknown IDs fail.
 Audit outputs are new files and never delete source artifacts. Resolve exclusions
 before caching; a changed audit requires a new cache directory.
+
+Audit/cache schema 2 preserves controller and collection-purpose provenance.
+Existing genuine pilots with `ShortestPathFollower(stop_on_error=False)` remain
+compatible; rebuild older audits/caches in new locations. Unknown provenance needs
+`--expert-resolutions resolutions.json`, mapping the audited `Building/episode_id`
+to `{"kind":"expert","reason":"documented review","evidence":"original collection log reference"}`.
+Known learned-policy recordings cannot be overridden as expert labels.
+
+Pass `--splits` to `extract` to preflight all requested train/development inputs
+before starting the worker. If labels are ineligible, repair collection or use
+`resolve-training-inputs --splits original.json --audit audit.json --reason "review reason" --output derived.json`.
+The derived manifest records explicit label exclusions and a new fingerprint while
+preserving every evaluation request. Use it consistently for training/evaluation.
+`integration-split` rejects ineligible rows rather than silently dropping identities.
 
 Install the source and checkpoint **on RunPod**, then verify the real encoder:
 

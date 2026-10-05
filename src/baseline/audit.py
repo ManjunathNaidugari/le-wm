@@ -5,9 +5,10 @@ import torch
 from jepa_navigation.data.gibson_pilot import validate_pilot
 from jepa_navigation.data.rgb_qc import rgb_quality, THRESHOLDS
 from .common import ACTIONS, building, contained_file, read_json, sha256_file, write_json
+from .provenance import classify_provenance
 
 
-def audit_run(run_dir, output, exclusions=None, negligible_m=0.01):
+def audit_run(run_dir, output, exclusions=None, negligible_m=0.01, expert_resolutions=None):
     if not np.isfinite(negligible_m) or negligible_m < 0:
         raise ValueError('negligible_m must be finite and nonnegative')
     root = Path(run_dir).resolve()
@@ -15,6 +16,13 @@ def audit_run(run_dir, output, exclusions=None, negligible_m=0.01):
     if manifest.get('workflow') not in ('gibson_pilot', 'navigation_collection'):
         raise ValueError('Expected pilot/collection attempt manifest')
     exclusions = exclusions or {}
+    expert_resolutions = expert_resolutions or {}
+    if not isinstance(exclusions, dict) or not isinstance(expert_resolutions, dict):
+        raise ValueError('Exclusions and expert resolutions must be JSON mappings')
+    signature = manifest.get('signature', {})
+    context = dict(workflow=manifest['workflow'], controller=signature.get('controller'),
+                   purpose=signature.get('purpose'), phase=signature.get('phase'),
+                   manifest_path=str(root / 'manifest.json'), manifest_sha256=sha256_file(root / 'manifest.json'))
     if any(not isinstance(reason, str) or not reason.strip() for reason in exclusions.values()):
         raise ValueError('Every explicit exclusion needs a reason')
     rows, seen = [], set()
@@ -27,7 +35,8 @@ def audit_run(run_dir, output, exclusions=None, negligible_m=0.01):
                    source_scene_id=entry['source_scene_id'], source_episode_id=str(entry['source_episode_id']),
                    status=entry['status'], success=entry.get('success', False),
                    trajectory=entry.get('trajectory'), structural_errors=[], review_flags=[],
-                   included=False, inclusion_reason=None)
+                   included=False, inclusion_reason=None, recording_valid=False,
+                   expert_eligible=False, training_eligible=False, provenance=None)
         filename = entry.get('trajectory')
         if not filename:
             row['structural_errors'].append(entry.get('error') or 'No recorded trajectory')
@@ -37,6 +46,8 @@ def audit_run(run_dir, output, exclusions=None, negligible_m=0.01):
                 row['trajectory'] = str(path)
                 row['source_sha256'] = sha256_file(path)
                 episode = torch.load(path, map_location='cpu', weights_only=True)
+                row['provenance'] = classify_provenance(context, episode['metadata'], expert_resolutions.get(key))
+                row['expert_eligible'] = row['provenance']['expert_eligible']
                 try:
                     validate_pilot(episode)
                     if str(episode['metadata']['source_episode_id']) != row['source_episode_id'] or episode['metadata']['source_scene_id'] != row['source_scene_id']:
@@ -76,18 +87,24 @@ def audit_run(run_dir, output, exclusions=None, negligible_m=0.01):
                 row['review_frame_indices'] = sorted(set(flagged_frames + [i + 1 for i in row['frozen_motion_action_indices']]))
             except Exception as exc:
                 row['structural_errors'].append(f'{type(exc).__name__}: {exc}')
+        row['recording_valid'] = not bool(row['structural_errors'])
+        row['training_eligible'] = row['recording_valid'] and row['expert_eligible'] and row.get('steps', 0) > 0
         if key in exclusions:
             row['inclusion_reason'] = 'explicit exclusion: ' + exclusions[key]
         elif row['structural_errors']:
             row['inclusion_reason'] = 'structural failure; repair/review required'
+        elif row.get('steps', 0) == 0:
+            row['inclusion_reason'] = 'zero-transition recording; no behavior-cloning labels (retained in failure reports)'
+        elif not row['expert_eligible']:
+            row['inclusion_reason'] = row['provenance']['reason']
         else:
             row['included'] = True
             row['inclusion_reason'] = 'included; visual flags remain for review'
         rows.append(row)
-    unknown = set(exclusions) - {r['identity'] for r in rows}
+    unknown = (set(exclusions) | set(expert_resolutions)) - {r['identity'] for r in rows}
     if unknown:
         raise ValueError(f'Exclusions refer to unknown identities: {sorted(unknown)}')
-    report = dict(schema_version=1, workflow='baseline_audit', run_dir=str(root),
+    report = dict(schema_version=2, workflow='baseline_audit', run_dir=str(root),
                   manifest_sha256=sha256_file(root / 'manifest.json'),
                   collision_rate_denominator='non-STOP actions (FORWARD/LEFT/RIGHT); zero denominator yields 0',
                   forward_rate_denominator='FORWARD actions; zero denominator yields 0',
@@ -95,6 +112,7 @@ def audit_run(run_dir, output, exclusions=None, negligible_m=0.01):
                   note='Heuristics flag review; they do not prove corruption. No data is deleted.',
                   rgb_thresholds=THRESHOLDS, episodes=rows,
                   summary=dict(attempted=len(rows), included=sum(r['included'] for r in rows),
+                               training_ineligible=sum(not r['training_eligible'] for r in rows),
                                structural_errors=sum(bool(r['structural_errors']) for r in rows),
                                review_flagged=sum(bool(r['review_flags']) for r in rows)))
     write_json(output, report, overwrite=False)
@@ -104,7 +122,7 @@ def audit_run(run_dir, output, exclusions=None, negligible_m=0.01):
 def combine_audits(inputs, output):
     """Combine train/development reports without dropping exclusions or provenance."""
     reports = [read_json(path) for path in inputs]
-    if not reports or any(r.get('workflow') != 'baseline_audit' for r in reports):
+    if not reports or any(r.get('workflow') != 'baseline_audit' or r.get('schema_version') != 2 for r in reports):
         raise ValueError('Expected one or more baseline audit reports')
     settings = ('collision_rate_denominator', 'forward_rate_denominator',
                 'negligible_displacement_threshold_m', 'rgb_thresholds')
@@ -114,7 +132,7 @@ def combine_audits(inputs, output):
     keys = [r['identity'].casefold() for r in rows]
     if len(keys) != len(set(keys)):
         raise ValueError('Duplicate official episode identities across audits')
-    result = dict(schema_version=1, workflow='baseline_audit',
+    result = dict(schema_version=2, workflow='baseline_audit',
                   source_audits=[dict(path=str(Path(p).resolve()), sha256=sha256_file(p)) for p in inputs],
                   **{k: reports[0][k] for k in settings},
                   note='Combined inclusion/exclusion records; no data deleted.', episodes=rows,

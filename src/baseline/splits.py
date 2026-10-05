@@ -83,6 +83,46 @@ def validate_splits(plan):
         raise ValueError('Training split has no included episodes')
     if plan['purpose'] == 'experiment' and (not plan['splits']['train']['episodes'] or not plan['splits']['development']['episodes'] or not plan['splits']['final_evaluation']['episodes']):
         raise ValueError('Experiment needs explicit train, development and final-evaluation episodes')
+    excluded = set()
+    permitted = {tuple(identity(e)) for phase in ('train', 'development') for e in plan['splits'][phase]['episodes']}
+    for item in plan.get('training_exclusions', []):
+        key = tuple(item['identity'])
+        if key not in permitted or key in excluded or not isinstance(item.get('reason'), str) or not item['reason'].strip():
+            raise ValueError('Invalid/duplicate training exclusion; evaluation identities must stay intact')
+        excluded.add(key)
+    return plan
+
+
+def training_definitions(plan, phase):
+    excluded = {tuple(item['identity']) for item in plan.get('training_exclusions', [])}
+    return [e for e in plan['splits'][phase]['episodes'] if tuple(identity(e)) not in excluded]
+
+
+def resolve_training_inputs(split_path, audit_path, output, reason):
+    """New immutable manifest: explicit label exclusions, unchanged evaluation requests."""
+    if not isinstance(reason, str) or not reason.strip():
+        raise ValueError('A documented dataset-resolution reason is required')
+    plan = validate_splits(read_json(split_path))
+    audit = read_json(audit_path)
+    if audit.get('schema_version') != 2 or audit.get('workflow') != 'baseline_audit':
+        raise ValueError('Re-audit expert provenance first')
+    rows = {(r['building'].casefold(), r['source_episode_id']): r for r in audit['episodes']}
+    exclusions = {tuple(e['identity']): e for e in plan.get('training_exclusions', [])}
+    for phase in ('train', 'development'):
+        for definition in plan['splits'][phase]['episodes']:
+            key = tuple(identity(definition))
+            if key not in rows:
+                raise ValueError(f'Cannot resolve an unaudited requested identity: {key}')
+            if not rows[key]['included']:
+                exclusions[key] = dict(identity=list(key), reason=reason + ': ' + rows[key]['inclusion_reason'])
+    parent = plan['fingerprint']
+    plan.update(training_exclusions=list(exclusions.values()), parent_split_fingerprint=parent,
+                training_resolution=dict(reason=reason, audit_sha256=sha256_file(audit_path)),
+                evaluation_requests_unchanged=True)
+    plan.pop('fingerprint')
+    plan['fingerprint'] = fingerprint(plan)
+    validate_splits(plan)
+    write_json(output, plan, overwrite=False)
     return plan
 
 
@@ -133,6 +173,8 @@ def integration_split(audit_path, output):
     episodes = []
     import torch
     for row in audit['episodes']:
+        if not row['included']:
+            raise ValueError('Integration split would omit requested recordings; repair inputs or resolve training exclusions on an existing split explicitly')
         if row['included']:
             if sha256_file(row['trajectory']) != row['source_sha256']:
                 raise ValueError('Pilot source changed after audit')

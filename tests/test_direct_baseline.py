@@ -27,8 +27,15 @@ from jepa_navigation.data.gibson_pilot import collect_pilot
 from jepa_navigation.data.pointnav import load_pointnav
 from jepa_navigation.navigation.actions import Action, to_lab_action
 from jepa_navigation.utils.config import SimulatorConfig, NavigationConfig
-from test_gibson_pilot import FixtureEnv, fixture_episode
+from test_gibson_pilot import FixtureEnv, fixture_episode as original_fixture_episode
 from test_pointnav import raw_episode, write_json
+
+
+def fixture_episode(*args, **kwargs):
+    episode = original_fixture_episode(*args, **kwargs)
+    episode['metadata'].update(controller='ShortestPathFollower(stop_on_error=False)',
+                               workflow='habitat_lab_pointnav_reference', synthetic=True)
+    return episode
 
 
 class TinyTokenModel(nn.Module):

@@ -125,7 +125,8 @@ def execute_plan(plan_path, phase, output_dir, sim, nav, runner=None, controller
                 if sha256_file(definition['source_episode_file']) != definition['source_episode_sha256']:
                     raise ValueError('Official episode shard changed after split materialization')
                 episode = runner(definition, sim, nav)
-                episode['metadata'].update(episode_id=entry['index'], scene_sha256=scene_hash)
+                episode['metadata'].update(episode_id=entry['index'], scene_sha256=scene_hash,
+                                           collection_purpose=purpose, collection_controller=controller_identity)
                 validate_pilot(episode)
                 filename = f"episode_{entry['index']:06d}_attempt_{attempt_id:03d}.pt"
                 target = root / filename

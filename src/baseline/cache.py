@@ -5,6 +5,7 @@ import torch
 from .features import raw_clip, FeatureConfig
 from .common import artifact_lock, contained_file, fingerprint, read_json, sha256_file, write_json
 from jepa_navigation.data.gibson_pilot import validate_pilot
+from .provenance import preflight_audit, require_expert
 
 
 def save_array(path, array):
@@ -18,16 +19,12 @@ def save_array(path, array):
 def extract_cache(audit_path, cache_dir, encoder, chunk_size=16):
     if type(chunk_size) is not int or chunk_size < 1:
         raise ValueError('chunk_size must be positive')
-    audit = read_json(audit_path)
-    if audit.get('workflow') != 'baseline_audit':
-        raise ValueError('Expected explicit audit/inclusion record')
-    selected = [r for r in audit['episodes'] if r['included']]
-    if not selected:
-        raise ValueError('No explicitly included trajectories')
+    selected = preflight_audit(audit_path)
     config = FeatureConfig(**encoder.identity['feature_config'])
-    signature = dict(schema_version=1, encoder=encoder.identity,
+    signature = dict(schema_version=2, encoder=encoder.identity,
                      audit_sha256=sha256_file(audit_path), chunk_size=chunk_size,
-                     sources=[dict(identity=r['identity'], path=r['trajectory'], sha256=r['source_sha256']) for r in selected])
+                     sources=[dict(identity=r['identity'], path=r['trajectory'], sha256=r['source_sha256'],
+                                   provenance=r['provenance']) for r in selected])
     root = Path(cache_dir).resolve()
     with artifact_lock(root):
         manifest_path = root / 'cache.json'
@@ -45,6 +42,7 @@ def extract_cache(audit_path, cache_dir, encoder, chunk_size=16):
                 raise ValueError(f"Source changed since audit: {row['identity']}")
             episode = torch.load(row['trajectory'], map_location='cpu', weights_only=True)
             validate_pilot(episode)
+            require_expert(episode, row['provenance'])
             # Never select video/composite/map tensors as encoder inputs.
             observations = episode['observations']
             t = len(episode['actions'])
@@ -56,7 +54,7 @@ def extract_cache(audit_path, cache_dir, encoder, chunk_size=16):
                     raise ValueError('Cache source/label alignment changed')
             else:
                 item = dict(identity=row['identity'], building=row['building'], steps=t,
-                            source_path=row['trajectory'], source_sha256=row['source_sha256'], chunks=[],
+                            source_path=row['trajectory'], source_sha256=row['source_sha256'], chunks=[], provenance=row['provenance'],
                             action_names=episode['action_names'], effective_settings=row['effective_settings'],
                             targets=f'targets_{index:06d}.npz')
                 manifest['episodes'].append(item)
@@ -106,7 +104,7 @@ def validate_cache(root, encoder_identity=None, verify_sources=True):
     if manifest.get('workflow') != 'causal_feature_cache' or not manifest.get('complete'):
         raise ValueError('Feature extraction is incomplete or has an unknown schema')
     signature = manifest['signature']
-    if fingerprint(signature) != manifest['fingerprint'] or signature['schema_version'] != 1:
+    if fingerprint(signature) != manifest['fingerprint'] or signature['schema_version'] != 2:
         raise ValueError('Cache signature is invalid')
     if encoder_identity is not None and encoder_identity != signature['encoder']:
         raise ValueError('Cache encoder/preprocessing/history/pooling mismatch')
@@ -118,6 +116,12 @@ def validate_cache(root, encoder_identity=None, verify_sources=True):
             raise ValueError('Cache source identity mismatch')
         if verify_sources and sha256_file(item['source_path']) != item['source_sha256']:
             raise ValueError('Cache is stale relative to raw trajectories')
+        if item.get('provenance') != source.get('provenance') or not item.get('provenance'):
+            raise ValueError('Missing/inconsistent expert provenance; re-audit and rebuild cache')
+        if verify_sources:
+            episode = torch.load(item['source_path'], map_location='cpu', weights_only=True)
+            validate_pilot(episode)
+            require_expert(episode, item['provenance'])
         target_path = contained_file(root, item['targets'])
         if sha256_file(target_path) != item['targets_sha256']:
             raise ValueError('Cache targets are corrupt')

@@ -34,6 +34,15 @@ def main(argv=None):
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--exclusions', type=Path, help='JSON mapping Building/episode_id -> review reason')
     p.add_argument('--negligible-m', type=float, default=0.01)
+    p.add_argument('--expert-resolutions', type=Path, help='Documented resolutions of unknown provenance; known learned labels stay forbidden')
+    p = commands.add_parser('preflight')
+    p.add_argument('--audit', type=Path, required=True)
+    p.add_argument('--splits', type=Path)
+    p = commands.add_parser('resolve-training-inputs')
+    p.add_argument('--splits', type=Path, required=True)
+    p.add_argument('--audit', type=Path, required=True)
+    p.add_argument('--reason', required=True)
+    p.add_argument('--output', type=Path, required=True)
     p = commands.add_parser('combine-audits')
     p.add_argument('--inputs', type=Path, nargs='+', required=True)
     p.add_argument('--output', type=Path, required=True)
@@ -58,6 +67,7 @@ def main(argv=None):
     p.add_argument('--audit', type=Path, required=True)
     p.add_argument('--cache-dir', type=Path, required=True)
     p.add_argument('--chunk-size', type=int, default=16)
+    p.add_argument('--splits', type=Path, help='Preflight all required training/development identities in the saved split')
     feature_arguments(p)
     p = commands.add_parser('train')
     p.add_argument('--cache-dir', type=Path, required=True)
@@ -94,13 +104,21 @@ def main(argv=None):
     try:
         if args.command == 'audit':
             from .audit import audit_run
-            result = audit_run(args.run_dir, args.output, read_json(args.exclusions) if args.exclusions else None, args.negligible_m)
+            result = audit_run(args.run_dir, args.output, read_json(args.exclusions) if args.exclusions else None, args.negligible_m,
+                               read_json(args.expert_resolutions) if args.expert_resolutions else None)
             print(json.dumps(result['summary'], indent=2))
         elif args.command == 'inventory':
             from .splits import inspect_availability
             result = inspect_availability(args.episode_data, args.scene_data_dir, args.output)
             print(json.dumps(result, indent=2))
             return 2 if result['errors'] else 0
+        elif args.command == 'preflight':
+            from .provenance import preflight_audit
+            print(f'Validated {len(preflight_audit(args.audit, args.splits))} eligible expert recordings; encoder not started')
+        elif args.command == 'resolve-training-inputs':
+            from .splits import resolve_training_inputs
+            result = resolve_training_inputs(args.splits, args.audit, args.output, args.reason)
+            print(f"Saved explicit training exclusions: {len(result['training_exclusions'])}; all evaluation requests unchanged")
         elif args.command == 'combine-audits':
             from .audit import combine_audits
             result = combine_audits(args.inputs, args.output)
@@ -117,6 +135,9 @@ def main(argv=None):
             integration_split(args.audit, args.output)
             print(f'Pilot integration split: {args.output}; not a generalization experiment')
         elif args.command in ('extract', 'check-encoder'):
+            if args.command == 'extract':
+                from .provenance import preflight_audit
+                preflight_audit(args.audit, args.splits)
             with make_worker(args) as encoder:
                 if args.command == 'extract':
                     from .cache import extract_cache
