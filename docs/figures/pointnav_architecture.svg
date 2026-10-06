@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1296pt" height="720pt" viewBox="0 0 1296 720" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-06T11:26:15.069630</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.7.1, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 720 
+L 1296 720 
+L 1296 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 45.9792 229.9104 
+L 184.9608 229.9104 
+Q 191.9448 229.9104 191.9448 222.9984 
+L 191.9448 123.4656 
+Q 191.9448 116.5536 184.9608 116.5536 
+L 45.9792 116.5536 
+Q 38.9952 116.5536 38.9952 123.4656 
+L 38.9952 222.9984 
+Q 38.9952 229.9104 45.9792 229.9104 
+z
+" clip-path="url(#p264c711d77)" style="fill: #e5f3eb; stroke: #203047; stroke-width: 1.35; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 238.0392 229.9104 
+L 384.0048 229.9104 
+Q 390.9888 229.9104 390.9888 222.9984 
+L 390.9888 123.4656 
+Q 390.9888 116.5536 384.0048 116.5536 
+L 238.0392 116.5536 
+Q 231.0552 116.5536 231.0552 123.4656 
+L 231.0552 222.9984 
+Q 231.0552 229.9104 238.0392 229.9104 
+z
+" clip-path="url(#p264c711d77)" style="fill: #e6f0fb; stroke: #203047; stroke-width: 1.35; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 447.5592 229.9104 
+L 604.0008 229.9104 
+Q 610.9848 229.9104 610.9848 222.9984 
+L 610.9848 123.4656 
+Q 610.9848 116.5536 604.0008 116.5536 
+L 447.5592 116.5536 
+Q 440.5752 116.5536 440.5752 123.4656 
+L 440.5752 222.9984 
+Q 440.5752 229.9104 447.5592 229.9104 
+z
+" clip-path="url(#p264c711d77)" style="fill: #fff0d9; stroke-dasharray: 6.75,4.05; stroke-dashoffset: 0; stroke: #203047; stroke-width: 1.35; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 667.5552 243.7344 
+L 876.3768 243.7344 
+Q 883.3608 243.7344 883.3608 236.8224 
+L 883.3608 109.6416 
+Q 883.3608 102.7296 876.3768 102.7296 
+L 667.5552 102.7296 
+Q 660.5712 102.7296 660.5712 109.6416 
+L 660.5712 236.8224 
+Q 660.5712 243.7344 667.5552 243.7344 
+z
+" clip-path="url(#p264c711d77)" style="fill: #fff0d9; stroke-dasharray: 6.75,4.05; stroke-dashoffset: 0; stroke: #203047; stroke-width: 1.35; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 943.4232 229.9104 
+L 1092.8808 229.9104 
+Q 1099.8648 229.9104 1099.8648 222.9984 
+L 1099.8648 123.4656 
+Q 1099.8648 116.5536 1092.8808 116.5536 
+L 943.4232 116.5536 
+Q 936.4392 116.5536 936.4392 123.4656 
+L 936.4392 222.9984 
+Q 936.4392 229.9104 943.4232 229.9104 
+z
+" clip-path="url(#p264c711d77)" style="fill: #eee9fa; stroke-dasharray: 6.75,4.05; stroke-dashoffset: 0; stroke: #203047; stroke-width: 1.35; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 1145.9592 229.9104 
+L 1250.0208 229.9104 
+Q 1257.0048 229.9104 1257.0048 222.9984 
+L 1257.0048 123.4656 
+Q 1257.0048 116.5536 1250.0208 116.5536 
+L 1145.9592 116.5536 
+Q 1138.9752 116.5536 1138.9752 123.4656 
+L 1138.9752 222.9984 
+Q 1138.9752 229.9104 1145.9592 229.9104 
+z
+" clip-path="url(#p264c711d77)" style="fill: #e5f3eb; stroke: #203047; stroke-width: 1.35; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 192.545499 178.7616 
+Q 211.497677 178.7616 228.996411 178.7616 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 224.196411 176.3616 
+L 228.996411 178.7616 
+L 224.196411 181.1616 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 391.590138 178.7616 
+Q 415.780136 178.7616 438.516689 178.7616 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 433.716689 176.3616 
+L 438.516689 178.7616 
+L 433.716689 181.1616 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 611.586138 178.7616 
+Q 635.776136 178.7616 658.512689 178.7616 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 653.712689 176.3616 
+L 658.512689 178.7616 
+L 653.712689 181.1616 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 883.965762 178.7616 
+Q 909.899691 178.7616 934.380177 178.7616 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 929.580177 176.3616 
+L 934.380177 178.7616 
+L 929.580177 181.1616 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 1100.465499 178.7616 
+Q 1119.417677 178.7616 1136.916411 178.7616 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 1132.116411 176.3616 
+L 1136.916411 178.7616 
+L 1132.116411 181.1616 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 717.84 271.455047 
+Q 717.84 257.903585 717.84 245.805568 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 715.44 250.605568 
+L 717.84 245.805568 
+L 720.24 250.605568 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_14">
+    <path d="M 525.78 90.213497 
+Q 525.78 103.074748 525.78 114.482556 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 528.18 109.682556 
+L 525.78 114.482556 
+L 523.38 109.682556 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_15">
+    <path d="M 1018.152 90.213497 
+Q 1018.152 103.074748 1018.152 114.482556 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 1020.552 109.682556 
+L 1018.152 114.482556 
+L 1015.752 109.682556 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_16">
+    <path d="M 115.1208 311.545216 
+Q 115.1208 271.036068 115.1208 231.980363 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 112.7208 236.780363 
+L 115.1208 231.980363 
+L 117.5208 236.780363 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_17">
+    <path d="M 49.4712 581.04 
+L 261.7848 581.04 
+Q 268.7688 581.04 268.7688 574.128 
+L 268.7688 469.0656 
+Q 268.7688 462.1536 261.7848 462.1536 
+L 49.4712 462.1536 
+Q 42.4872 462.1536 42.4872 469.0656 
+L 42.4872 574.128 
+Q 42.4872 581.04 49.4712 581.04 
+z
+" clip-path="url(#p264c711d77)" style="fill: #e5f3eb; stroke: #203047; stroke-width: 1.35; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_18">
+    <path d="M 328.8312 581.04 
+L 530.6688 581.04 
+Q 537.6528 581.04 537.6528 574.128 
+L 537.6528 469.0656 
+Q 537.6528 462.1536 530.6688 462.1536 
+L 328.8312 462.1536 
+Q 321.8472 462.1536 321.8472 469.0656 
+L 321.8472 574.128 
+Q 321.8472 581.04 328.8312 581.04 
+z
+" clip-path="url(#p264c711d77)" style="fill: #e6f0fb; stroke: #203047; stroke-width: 1.35; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_19">
+    <path d="M 597.7152 581.04 
+L 813.5208 581.04 
+Q 820.5048 581.04 820.5048 574.128 
+L 820.5048 469.0656 
+Q 820.5048 462.1536 813.5208 462.1536 
+L 597.7152 462.1536 
+Q 590.7312 462.1536 590.7312 469.0656 
+L 590.7312 574.128 
+Q 590.7312 581.04 597.7152 581.04 
+z
+" clip-path="url(#p264c711d77)" style="fill: #fff0d9; stroke-dasharray: 6.75,4.05; stroke-dashoffset: 0; stroke: #203047; stroke-width: 1.35; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_20">
+    <path d="M 887.5512 581.04 
+L 1243.0368 581.04 
+Q 1250.0208 581.04 1250.0208 574.128 
+L 1250.0208 469.0656 
+Q 1250.0208 462.1536 1243.0368 462.1536 
+L 887.5512 462.1536 
+Q 880.5672 462.1536 880.5672 469.0656 
+L 880.5672 574.128 
+Q 880.5672 581.04 887.5512 581.04 
+z
+" clip-path="url(#p264c711d77)" style="fill: #eee9fa; stroke-dasharray: 6.75,4.05; stroke-dashoffset: 0; stroke: #203047; stroke-width: 1.35; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_21">
+    <path d="M 269.373762 520.9056 
+Q 295.307691 520.9056 319.788177 520.9056 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 314.988177 518.5056 
+L 319.788177 520.9056 
+L 314.988177 523.3056 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_22">
+    <path d="M 538.257762 520.9056 
+Q 564.191691 520.9056 588.672177 520.9056 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 583.872177 518.5056 
+L 588.672177 520.9056 
+L 583.872177 523.3056 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_23">
+    <path d="M 821.106778 520.9056 
+Q 850.53435 520.9056 878.508478 520.9056 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 873.708478 518.5056 
+L 878.508478 520.9056 
+L 873.708478 523.3056 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_24">
+    <path d="M 1067.04 446.873794 
+Q 1067.04 454.206222 1067.04 460.085206 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 1069.44 455.285206 
+L 1067.04 460.085206 
+L 1064.64 455.285206 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_25">
+    <path d="M 675.936 614.292272 
+Q 675.936 597.974826 675.936 583.110824 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 673.536 587.910824 
+L 675.936 583.110824 
+L 678.336 587.910824 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_26">
+    <path d="M 1067.04 644.01615 
+Q 1067.04 612.836585 1067.04 583.110464 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+    <path d="M 1064.64 587.910464 
+L 1067.04 583.110464 
+L 1069.44 587.910464 
+z
+" clip-path="url(#p264c711d77)" style="fill: #203047; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 414.036 178.7616 
+L 414.036 273.456 
+L 717.84 273.456 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 717.84 88.2144 
+L 525.78 88.2144 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 857.52 88.2144 
+L 1018.152 88.2144 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 1197.6408 228.528 
+L 1197.6408 313.5456 
+L 115.1208 313.5456 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 36.9 393.0336 
+L 1259.1 393.0336 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #c6ced8; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 438.48 463.536 
+L 438.48 444.8736 
+L 1067.04 444.8736 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M 159.12 579.6576 
+L 159.12 616.2912 
+L 675.936 616.2912 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M 89.28 579.6576 
+L 89.28 646.0128 
+L 1067.04 646.0128 
+" clip-path="url(#p264c711d77)" style="fill: none; stroke: #203047; stroke-width: 1.3; stroke-linecap: round"/>
+   </g>
+   <g id="text_1">
+    <text style="fill: #203047; font: 700 19px 'DejaVu Sans'; text-anchor: start" x="36.9" y="36.704594" transform="rotate(-0 36.9 36.704594)">V-JEPA-based predictive navigation for indoor PointNav</text>
+   </g>
+   <g id="text_2">
+    <text style="fill: #203047; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="36.9" y="64.521975" transform="rotate(-0 36.9 64.521975)">A   Deployment · observe, predict, choose one action, repeat</text>
+   </g>
+   <g id="text_3">
+    <text style="fill: #203047; font: 700 11px 'DejaVu Sans'; text-anchor: middle" x="115.47" y="141.664344" transform="rotate(-0 115.47 141.664344)">RGB history</text>
+   </g>
+   <g id="text_4">
+    <text style="fill: #203047; font: 10px 'DejaVu Sans'" transform="translate(72.458281 183.767903)">64 causal frames</text>
+    <text style="fill: #203047; font: 10px 'DejaVu Sans'" transform="translate(61.743437 197.245247)">from Habitat / Gibson</text>
+   </g>
+   <g id="text_5">
+    <text style="fill: #203047; font: 700 11px 'DejaVu Sans'; text-anchor: middle" x="311.022" y="141.707313" transform="rotate(-0 311.022 141.707313)">Frozen encoder</text>
+   </g>
+   <g id="text_6">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(272.994187 184.165833)">V-JEPA 2 ViT-L/16</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(253.058484 196.295442)">Temporal / spatial pooling</text>
+   </g>
+   <g id="text_7">
+    <text style="fill: #203047; font: 700 11px 'DejaVu Sans'; text-anchor: middle" x="525.78" y="141.707313" transform="rotate(-0 525.78 141.707313)">Action proposals</text>
+   </g>
+   <g id="text_8">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(480.218906 178.101028)">Small policy π(zₜ, gₜ)</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(472.989375 190.230638)">+ sequence generation</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(472.369219 202.360247)">K candidates, horizon H</text>
+   </g>
+   <g id="text_9">
+    <text style="fill: #203047; font: 700 11px 'DejaVu Sans'; text-anchor: middle" x="771.966" y="127.883312" transform="rotate(-0 771.966 127.883312)">Predictive world model</text>
+   </g>
+   <g id="text_10">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(707.521078 172.216223)">Latent predictor Fθ(z, a) → ẑ′</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(724.272328 184.345833)">Motion head Mφ(z, a)</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(705.828656 196.475442)">→ local translation + heading</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(718.937016 208.605052)">Roll out each candidate</text>
+   </g>
+   <g id="text_11">
+    <text style="fill: #203047; font: 700 11px 'DejaVu Sans'; text-anchor: middle" x="1018.152" y="141.664344" transform="rotate(-0 1018.152 141.664344)">Candidate scoring</text>
+   </g>
+   <g id="text_12">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(957.187547 178.101028)">Compose predicted motion</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(966.375984 190.230638)">Estimate goal progress</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(969.988641 202.360247)">Select best sequence</text>
+   </g>
+   <g id="text_13">
+    <text style="fill: #203047; font: 700 11px 'DejaVu Sans'; text-anchor: middle" x="1197.99" y="141.707313" transform="rotate(-0 1197.99 141.707313)">Execute</text>
+   </g>
+   <g id="text_14">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(1162.288828 178.101028)">First action only</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(1167.946875 190.230638)">Habitat steps</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(1165.291172 202.360247)">Observe again</text>
+   </g>
+   <g id="text_15">
+    <text style="fill: #203047; font: 11px 'DejaVu Sans'; text-anchor: middle" x="415.4328" y="163.825713" transform="rotate(-0 415.4328 163.825713)">zₜ</text>
+   </g>
+   <g id="text_16">
+    <text style="fill: #203047; font: 11px 'DejaVu Sans'; text-anchor: middle" x="634.7304" y="163.825713" transform="rotate(-0 634.7304 163.825713)">A⁽ⁱ⁾</text>
+   </g>
+   <g id="text_17">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'; text-anchor: middle" x="564.192" y="264.189037" transform="rotate(-0 564.192 264.189037)">Initialize every rollout with observed zₜ</text>
+   </g>
+   <g id="text_18">
+    <text style="fill: #203047; font: 700 10px 'DejaVu Sans'; text-anchor: middle" x="787.68" y="80.566712" transform="rotate(-0 787.68 80.566712)">Relative coordinate goal gₜ · updated from simulator pose</text>
+   </g>
+   <g id="text_19">
+    <text style="fill: #203047; font: 10px 'DejaVu Sans'; text-anchor: middle" x="648" y="301.789775" transform="rotate(-0 648 301.789775)">New RGB observation + updated relative goal · replan after every action</text>
+   </g>
+   <g id="text_20">
+    <text style="fill: #203047; font: 700 10px 'DejaVu Sans'; text-anchor: middle" x="648" y="347.269912" transform="rotate(-0 648 347.269912)">Action set: FORWARD (0.25 m) · TURN_LEFT / TURN_RIGHT (15°) · STOP</text>
+   </g>
+   <g id="text_21">
+    <text style="fill: #203047; font: 10px 'DejaVu Sans'; text-anchor: middle" x="648" y="370.909775" transform="rotate(-0 648 370.909775)">Future states are predicted by the model; no future simulator queries, map input or expert path at deployment.</text>
+   </g>
+   <g id="text_22">
+    <text style="fill: #203047; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="36.9" y="420.489975" transform="rotate(-0 36.9 420.489975)">B   Training · learn from recorded transitions</text>
+   </g>
+   <g id="text_23">
+    <text style="fill: #203047; font: 700 11px 'DejaVu Sans'; text-anchor: middle" x="155.628" y="487.264344" transform="rotate(-0 155.628 487.264344)">Recorded trajectories</text>
+   </g>
+   <g id="text_24">
+    <text style="fill: #203047; font: 10px 'DejaVu Sans'" transform="translate(85.64675 525.394031)">Current / next RGB histories</text>
+    <text style="fill: #203047; font: 10px 'DejaVu Sans'" transform="translate(106.747531 538.871375)">Executed actions aₜ</text>
+    <text style="fill: #203047; font: 10px 'DejaVu Sans'" transform="translate(97.282687 552.348719)">Recorded poses pₜ, pₜ₊₁</text>
+   </g>
+   <g id="text_25">
+    <text style="fill: #203047; font: 700 11px 'DejaVu Sans'; text-anchor: middle" x="429.75" y="487.307312" transform="rotate(-0 429.75 487.307312)">Frozen shared encoder</text>
+   </g>
+   <g id="text_26">
+    <text style="fill: #203047; font: 10px 'DejaVu Sans'" transform="translate(389.077344 525.394031)">Current latent zₜ</text>
+    <text style="fill: #203047; font: 10px 'DejaVu Sans'" transform="translate(374.76875 538.871375)">Next latent target zₜ₊₁</text>
+    <text style="fill: #203047; font: 10px 'DejaVu Sans'" transform="translate(360.742187 552.348719)">No encoder weight updates</text>
+   </g>
+   <g id="text_27">
+    <text style="fill: #203047; font: 700 11px 'DejaVu Sans'; text-anchor: middle" x="705.618" y="487.307312" transform="rotate(-0 705.618 487.307312)">Trainable predictions</text>
+   </g>
+   <g id="text_28">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(663.474797 526.465828)">Fθ: next latent ẑₜ₊₁</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(651.876047 538.595438)">Mφ: local motion Δp, Δψ</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(634.589719 550.725047)">Short multi-step rollout training</text>
+   </g>
+   <g id="text_29">
+    <text style="fill: #203047; font: 700 11px 'DejaVu Sans'; text-anchor: middle" x="1065.294" y="487.307312" transform="rotate(-0 1065.294 487.307312)">Supervision and losses</text>
+   </g>
+   <g id="text_30">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(952.334156 526.465828)">Latent loss: prediction vs. frozen next-state target</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(954.952594 538.595438)">Motion loss: prediction vs. recorded pose change</text>
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'" transform="translate(968.354859 550.725047)">Update predictor and motion-head weights</text>
+   </g>
+   <g id="text_31">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'; text-anchor: middle" x="295.308" y="502.653037" transform="rotate(-0 295.308 502.653037)">RGB</text>
+   </g>
+   <g id="text_32">
+    <text style="fill: #203047; font: 10px 'DejaVu Sans'; text-anchor: middle" x="564.192" y="502.928975" transform="rotate(-0 564.192 502.928975)">zₜ</text>
+   </g>
+   <g id="text_33">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'; text-anchor: middle" x="752.76" y="437.680237" transform="rotate(-0 752.76 437.680237)">Frozen next-state target (training only)</text>
+   </g>
+   <g id="text_34">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'; text-anchor: middle" x="417.528" y="605.641837" transform="rotate(-0 417.528 605.641837)">Executed action aₜ conditions both heads</text>
+   </g>
+   <g id="text_35">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'; text-anchor: middle" x="648" y="636.745837" transform="rotate(-0 648 636.745837)">Recorded pose changes → local motion targets (training only)</text>
+   </g>
+   <g id="text_36">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'; text-anchor: start" x="43.884" y="682.950769" transform="rotate(-0 43.884 682.950769)">Blue: frozen weights   |   Orange: learned modules   |   Dashed border: proposed component / extension</text>
+   </g>
+   <g id="text_37">
+    <text style="fill: #203047; font: 9px 'DejaVu Sans'; text-anchor: end" x="1248.624" y="683.056237" transform="rotate(-0 1248.624 683.056237)">Proposal policy: separate behavior-cloning supervision</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p264c711d77">
+   <rect x="19.44" y="10.8" width="1257.12" height="691.2"/>
+  </clipPath>
+ </defs>
+</svg>

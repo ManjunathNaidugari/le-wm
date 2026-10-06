@@ -6,6 +6,7 @@ import io
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -275,6 +276,23 @@ class BaselineTests(unittest.TestCase):
         self.assertEqual(result['summary']['video_errors'], 1)
         self.assertEqual(result['summary']['runtime_errors'], 0)
         self.assertTrue((self.root / 'video-error' / result['episodes'][0]['trajectory']).is_file())
+
+    def test_worker_imports_upstream_src_from_repository_directory(self):
+        # V-JEPA uses a namespace src package; our regular src package used to hide it.
+        upstream = self.root / 'upstream'
+        hub = upstream / 'src' / 'hub'
+        hub.mkdir(parents=True)
+        (hub / '__init__.py').write_text('')
+        command = worker_command(sys.executable, self.config, upstream, 'unused-checkpoint')
+        probe = ('import importlib.util, sys; sys.path.insert(0, sys.argv[1]); '
+                 'import src.hub; print(src.hub.__file__); '
+                 'assert importlib.util.find_spec("jepa_navigation.baseline.worker") is not None')
+        result = subprocess.check_output(
+            command[:command.index('-m')] + ['-c', probe, str(upstream)],
+            cwd=Path(__file__).resolve().parents[1], text=True,
+            env=dict(os.environ, PYTHONPATH=str(Path(__file__).resolve().parents[1])),
+        )
+        self.assertEqual(Path(result.strip()), hub / '__init__.py')
 
     def test_binary_protocol_and_different_python_worker(self):
         stream = io.BytesIO()

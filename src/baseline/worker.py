@@ -93,7 +93,8 @@ class WorkerClient:
 
 
 def worker_command(python, config, source_dir=None, checkpoint=None, device='cuda'):
-    command = [str(python), '-u', '-m', 'jepa_navigation.baseline.worker',
+    # Exclude the caller's src package/PYTHONPATH so Hub can import V-JEPA's src.
+    command = [str(python), '-I', '-u', '-m', 'jepa_navigation.baseline.worker',
                '--feature-config', json.dumps(config.__dict__), '--device', device]
     if not source_dir or not checkpoint:
         raise ValueError('Official worker requires source_dir and checkpoint; no auto-download')

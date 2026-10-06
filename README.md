@@ -1,15 +1,23 @@
-# Goal-conditioned indoor navigation using visual latent representations
+# V-JEPA-based world models for indoor PointNav
 
-Bachelor's thesis comparing two planned approaches to robot-relative coordinate goals:
+Implementation-led Bachelor's thesis building and evaluating predictive indoor
+navigation against an established non-world-model RGB PointNav agent, with
+generalization to unseen buildings and a simulation demonstration.
 
-- **Direct goal-conditioned policy:** visual representation + relative goal → discrete action.
-- **Action-conditioned latent predictor:** `z_t + action → predicted z_(t+1)`, used with short-horizon planning.
+**The [agreed thesis plan](docs/THESIS_PLAN.md) records the final scope and three
+milestones, updated 6 October 2026.** The agent receives RGB history and a
+simulator-provided relative goal, then chooses `FORWARD`, `TURN_LEFT`, `TURN_RIGHT`
+or `STOP`. This assumes accurate localization through the goal vector; it does
+not claim camera-only localization.
 
-**The first frozen V-JEPA 2 direct baseline is implemented for runtime verification.**
-Its pretrained GPU extraction, real-data training and learned Habitat execution
-remain unverified. Follow [the direct baseline guide](docs/DIRECT_BASELINE.md).
-The predictive model and planner remain future work. Legacy LeWM code is retained for
-reference, not as the thesis architecture; see [repository audit](docs/REPOSITORY_AUDIT.md).
+The frozen V-JEPA 2 direct policy is implemented and has real RunPod integration
+evidence. It will support policy-guided predictive planning and a supporting
+ablation; it is not the thesis's sole comparison. Follow
+[the existing direct-policy guide](docs/DIRECT_BASELINE.md) for commands and the
+[current plan](docs/THESIS_PLAN.md#current-evidence) for acceptance status.
+The learned dynamics model, motion head, predictive planner and external
+baseline integration still need implementation. Legacy LeWM code is retained for
+reference and is not the planned thesis architecture.
 The original upstream MIT [license](LICENSE) is preserved.
 
 ## Status
@@ -18,16 +26,26 @@ The original upstream MIT [license](LICENSE) is preserved.
 |---|---|
 | Habitat-Sim smoke test | Complete; verified on Linux / RTX 3090 / EGL |
 | Deterministic expert collection | Complete |
-| RGB/data validation | In progress; heuristic QC requires real-data review |
-| Gibson PointNav integration | User reports 15 successful RunPod pilot episodes; comprehensive visual acceptance pending |
-| V-JEPA extraction | Implemented; official preprocessing checked locally, pretrained GPU execution pending |
-| Direct baseline | Implemented; synthetic wiring/overfit tests pass, real-data training and closed-loop checks pending |
-| Latent predictor/planner | Later |
+| RGB/data validation | Pilot reviewed: 14/15 expert episodes retained; one excluded for severe black frames |
+| Gibson PointNav integration | User reports 15 expert successes on RunPod; reviewed subset provides 431 transitions |
+| V-JEPA extraction | RunPod encoder check and complete 14-episode cache; downloaded cache hashes/shapes checked locally |
+| Direct policy | 32/32 selected examples fit; learned integration rollout 1/15 success; full-data navigation pending |
+| Latent predictor/planner | Not implemented |
+| External baseline / unseen-building evaluation | Pending |
 
-Navigation success does not establish valid rendering. Previously observed dark/clipped
-castle episodes motivate automated RGB checks and selective video review.
+The downloaded learned-rollout records passed local artifact checks, but their
+manifest's final completion flag/summary needs reconciliation with RunPod.
+Original expert trajectories and encoder weights were not included in that
+download; they were not independently regenerated locally.
 
-## Environment and basic commands
+## Current runtime
+
+Use the separate pinned environments in `environment-gibson-pilot.yml` and
+`environment-vjepa-features.yml`, following [the Gibson guide](docs/GIBSON_PILOT.md)
+and [feature/policy guide](docs/DIRECT_BASELINE.md). Run Habitat and V-JEPA on Linux
+with working CUDA/EGL; keep datasets and run artifacts on persistent storage.
+
+## Legacy direct-Sim environment and commands
 
 Linux x86_64 with working EGL graphics drivers and Conda. Keep the existing
 `lewm-habitat-smoke` environment name for compatibility. Habitat-Sim is pinned to
@@ -49,7 +67,7 @@ or overwrite. Missing Habitat/assets cause errors, never synthetic observations.
 Smoke exits 0 on success, 1 on rollout failure, 2 on setup error. Collection exits
 0 when all requested rollouts are saved (including failures), 2 on error.
 
-## Current Gibson pilot
+## Gibson pilot workflow
 
 Use the [Gibson pilot guide](docs/GIBSON_PILOT.md) for the new isolated
 Habitat-Sim **0.3.3** + Habitat-Lab **0.3.3** reference workflow. It selects
@@ -62,17 +80,17 @@ remains available for the existing commands.
 python scripts/gibson_pilot.py run \
   --episode-data /workspace/datasets/pointnav/gibson/v1/train/train.json.gz \
   --scene-data-dir /workspace/datasets/scene_datasets \
-  --scenes Allensville --episode-id 0 \
+  --scenes Adrian --episode-id 18151 \
   --output-dir /workspace/pilot-runs/one
 ```
 
 Create `environment-gibson-pilot.yml` and supply the matching external assets
 first. See the guide for batch, validation, export and repeatability commands,
 [verification evidence](docs/GIBSON_PILOT_RESULTS.md), and
-[milestone boundaries](docs/MILESTONES.md). Comprehensive visual acceptance
-remains pending. The user reports successful Linux execution on
-Adrian, Albertville and Anaheim; that report is recorded separately from local
-verification. Local fixture tests cannot establish rendering or learned performance.
+[milestone boundaries](docs/MILESTONES.md). The reviewed pilot retains 14 episodes
+from Adrian, Albertville and Anaheim for training. The asset paths and example
+episode must exist in the user's official dataset. Local fixture tests cannot
+establish rendering or learned performance.
 
 ## Existing direct-Sim PointNav tools
 
