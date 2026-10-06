@@ -29,12 +29,13 @@ The original upstream MIT [license](LICENSE) is preserved.
 | RGB/data validation | Pilot reviewed: 14/15 expert episodes retained; one excluded for severe black frames |
 | Gibson PointNav integration | User reports 15 expert successes on RunPod; reviewed subset provides 431 transitions |
 | V-JEPA extraction | RunPod encoder check and complete 14-episode cache; downloaded cache hashes/shapes checked locally |
-| Direct policy | 32/32 selected examples fit; learned integration rollout 1/15 success; full-data navigation pending |
+| Direct policy | Full pilot: 431 training transitions; 14/15 rollout successes, SPL 0.929; training-building diagnostic only |
 | Latent predictor/planner | Not implemented |
 | External baseline / unseen-building evaluation | Pending |
 
-The downloaded learned-rollout records passed local artifact checks, but their
-manifest's final completion flag/summary needs reconciliation with RunPod.
+See the [full-pilot evidence](docs/FULL_PILOT_RESULTS.md) and
+[next experiment setup](docs/GIBSON_EXPERIMENT.md). The new full-pilot manifest is
+complete; the earlier 32-example run had a separate completion-flag discrepancy.
 Original expert trajectories and encoder weights were not included in that
 download; they were not independently regenerated locally.
 

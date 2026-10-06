@@ -89,6 +89,14 @@ minimization can fail on necessary detours, which must be tested explicitly.
 
 ## Current evidence
 
+**Update, 6 October:** the all-431-transition diagnostic completed with 14/15
+successes and mean SPL 0.928724. All 14 trained episodes succeeded; the excluded
+Anaheim/19466 episode failed. See [verification limits and results](FULL_PILOT_RESULTS.md).
+The table below preserves the earlier 32-example experiment's evidence.
+The [next experiment configuration and commands](GIBSON_EXPERIMENT.md) now prepare
+10 training, three development and five reserved final buildings from actual assets.
+The worker import fix is committed in `50054fb`.
+
 Base code: `1986e39` on `codex/vjepa-direct-baseline`. The successful RunPod run also
 used a worker import-isolation patch. Its local implementation and regression
 test were already uncommitted when this documentation was written.

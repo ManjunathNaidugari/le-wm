@@ -1,0 +1,10 @@
+{
+  "seed": 42,
+  "excluded_buildings": ["Adrian", "Albertville", "Anaheim"],
+  "final_excluded_buildings": [],
+  "splits": {
+    "train": {"official_split": "train", "buildings": 10, "episodes": 200},
+    "development": {"official_split": "train", "buildings": 3, "episodes": 50},
+    "final_evaluation": {"official_split": "val", "buildings": 5, "episodes": 100}
+  }
+}
